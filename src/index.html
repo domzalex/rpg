@@ -1,0 +1,216 @@
+<style>
+    @font-face {
+        font-family: '8bit';
+        src: url('./fonts/8bitlim.ttf');
+    }
+    *, *::after, *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: '8bit';
+        letter-spacing: 4px;
+    }
+    /* canvas {
+        transform: translateY(-50px);
+    } */
+    body {
+        background-color: black;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family:Verdana, Geneva, Tahoma, sans-serif;
+    }
+    .menu-button {
+        border: solid 5px rgba(0,0,0,0);
+        background: none;
+        padding: 0.12em 0.27em;
+    }
+    .item {
+        border: solid 5px rgba(0,0,0,0);
+        padding: 0.12em 0.27em;
+        height: 75px;
+    }
+    .menu-hovered, .item-hovered {
+        border: solid 5px white;
+    }
+    .battle-menu-item {
+        border: solid 5px transparent;
+        width: 25%;
+        height: 175px;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 10px;
+    }
+    .battle-menu-hovered {
+        border: solid 5px white;
+    }
+    #enemy-health::after {
+        display: inline-block;
+        content: '';
+        width: 80px;
+        height: 25px;
+        border: solid 5px white;
+        position: absolute;
+        top: -5px;
+        left: -5px;
+    }
+    #battle-dialog, #npc-dialog {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        color: white;
+    }
+</style>
+
+<div style="position: relative; display: inline-block; transform: translateY(-15px)">
+    <canvas></canvas>
+
+    <div id="menu" style="background-color: black; display: none; flex-direction: column; justify-content: space-evenly; align-items: flex-start; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+    
+        <div id="menu-buttons" style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%;">
+            <button id="menu-items" class="menu-button menu-hovered" style="font-size: 4em; color: white;">Items</button>
+            <button id="menu-equip" class="menu-button" style="font-size: 4em; color: white;">Equip</button>
+            <button id="menu-save" class="menu-button" style="font-size: 4em; color: white;">Save</button>
+            <h1 id="save-alert" style="color: white; font-size: 2em; opacity: 0;">Game saved!</h1>
+        </div>
+    
+    </div>
+
+    <div id="all-items" style="background-color: black; position: absolute; top: 0px; left: 0; color: white; display: none; justify-content: space-evenly; width: 100%; height: 100%;">
+        <div id="potion" class="item item-hovered">
+            <h1>potion</h1>
+            <h2 style="text-align: center;"></h2>
+        </div>
+        <div id="big-potion" class="item">
+            <h1>big-potion</h1>
+            <h2 style="text-align: center;"></h2>
+        </div>
+        <div id="magic-potion" class="item">
+            <h1>magic-potion</h1>
+            <h2 style="text-align: center;"></h2>
+        </div>
+        <div id="big-magic-potion" class="item">
+            <h1>big-magic-potion</h1>
+            <h2 style="text-align: center;"></h2>
+        </div>
+        <div id="antidote" class="item">
+            <h1>antidote</h1>
+            <h2 style="text-align: center;"></h2>
+        </div>
+    </div>
+
+    <div id="player-stats" style="padding-bottom: 30px; color: white; width: 100%; display: none; justify-content: space-evenly; position: absolute; bottom: 0; left: 0;">
+        <div>
+            <h1 id="player-level"></h1>
+            <h1 id="player-exp"></h1>
+            <h1 id="player-health"></h1>
+            <h1 id="player-magic"></h1>
+            <h1 id="player-money"></h1>
+        </div>
+        
+        <div>
+            <h1 id="player-exp-next"></h1>
+            <h1 id="player-atk"></h1>
+            <h1 id="player-def"></h1>
+            <h1 id="player-spd"></h1>
+            <h1 id="player-power"></h1>
+        </div>
+    </div>
+
+    <div id="battle-pane" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; background-color: black;">
+        <div id="battle-menu" style="display: flex; align-items: center; justify-content: space-evenly; position: absolute; bottom: 0; left: 0; width: 70%; height: 100%;">
+            <h1 class="battle-menu-item">Attack</h1>
+            <h1 class="battle-menu-item">Magic</h1>
+            <h1 class="battle-menu-item">Item</h1>
+            <h1 class="battle-menu-item">Run</h1>
+        </div>
+
+        <div id="magic-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 889px; height: 200px; background-color: black;">
+            <h1 id="fire-magic" class="battle-menu-item" style="width: 30%;">Fire</h1>
+            <h1 id="lightning-magic" class="battle-menu-item" style="width: 30%;">Lightning</h1>
+            <h1 id="wind-magic" class="battle-menu-item" style="width: 30%;">Wind</h1>
+        </div>
+
+        <div id="battle-item-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 889px; height: 200px; background-color: black;">
+            <h1 class="battle-menu-item">Potion</h1>
+            <h1 class="battle-menu-item">Big Potion</h1>
+            <h1 class="battle-menu-item">Magic Potion</h1>
+            <h1 class="battle-menu-item">Big Magic Potion</h1>
+        </div>
+
+        <div id="player-stats-battle" class="battle-menu-item battle-menu-hovered" style="position: absolute; top: 12.5px; right: 0; display: flex; flex-direction: column; justify-content: space-between; width: 28%; height: 175px; padding: 1em;">
+            <h1>Player Stats</h1>
+            <h1 id="player-health"></h1>
+            <h1 id="player-magic"></h1>
+        </div>
+
+        <div id="battle-dialog" style="padding: 1em;font-size: 2em; width: 889px; height: 100%; display: none; justify-content: flex-start; align-items: center; text-align: center; background-color:black">
+            <!-- <h1 id="battle-message" style="font-size: 2em;"></h1> -->
+        </div>
+
+
+        <div id="enemy-health" style="height: 15px; background-color: #FF77A8; position: absolute; top: -225px; left: 361px;"></div>
+
+        
+    </div>
+
+    <div id="win-screen" style="background-color: black; color: white; display: none; justify-content: space-evenly; position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
+        <h1 style="transform: translateY(50px)">You won!</h1>
+        <h1 style="transform: translateY(50px)" id="exp-gain"></h1>
+        <h1 style="transform: translateY(50px)" id="money-gain"></h1>
+        <div id="level-up-modal" style="background-color: black; color: white; font-size: 2em; display: none; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; text-align: center; height: 100%; width: 100%;"><h1 style="width: 50%;">Congratulations! You gained a new level!</h1></div>
+    </div>
+    <div id="lose-screen" style="background-color: black; color: white; display: none; justify-content: space-evenly; position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
+        <h1 style="transform: translateY(50px)">You lose :(</h1>
+    </div>
+
+    <div id="npc-dialog">
+        <h1 id="npc-message" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: center; align-items: center; background-color:black"></h1>
+        <div id="merchant-options-one" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: center; align-items: center; background-color:black">
+            <h1 id="yes" style="width: 150px; margin: 1em; padding: 0.5em 1em; text-align: center;">Yes</h1>
+            <h1 id="no" style="width: 150px; margin: 1em; padding: 0.5em 1em; text-align: center;">No</h1>
+        </div>
+        <div id="merchant-options-two" style="width: 100%; height: 100%; position: absolute; bottom: 0; left: 0; display: none; justify-content: space-between; background-color:black">
+            <div style="display: flex; flex-direction: column; justify-content: space-evenly;">
+                <h1 class="shop-item" id="big-potion" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Big Potion</h1>
+                <h1 class="shop-item" id="big-magic-potion" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Big Magic Potion</h1>
+                <h1 class="shop-item" id="armor-set" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Armor Set</h1>
+                <h1 class="shop-item" id="big-sword" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Bigger Sword</h1>
+                <h1 class="shop-item" id="exit-menu" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Exit</h1>
+            </div>
+            <div id="shop-player-info" style="font-size: 2em; display: flex; flex-direction: column; align-items: flex-end; height: 100%; width: 30%;">
+                <div id="shop-money" style="text-align: center; padding: 1em; border: solid 1px white; height: 33%; width: 100%">
+
+                </div>
+                <div id="shop-amount-owned" style="text-align: center; padding: 1em; border: solid 1px white; height: 33%; width: 100%">
+
+                </div>
+                <div id="shop-message" style="text-align: center; padding: 1em; border: solid 1px white; height: 33%; width: 100%">
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="data/battleZones.js"></script>
+<script src="data/collisions.js"></script>
+<script src="data/npcs.js"></script>
+<script src="./js/classes.js"></script>
+<script src="./js/variables.js"></script>
+<script src="./js/controls.js"></script>
+<script src="./js/collisionCreation.js"></script>
+<script src="./js/menus.js"></script>
+<script src="./js/battle.js"></script>
+<script src="./js/main.js"></script>
