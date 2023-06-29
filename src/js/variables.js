@@ -26,8 +26,8 @@ let character = {
         mp: 20,
         exp: 0,
         expToNext: 40,
-        atk: 150,
-        power: 150,
+        atk: 15,
+        power: 15,
         def: 10,
         spd: 10
     },
