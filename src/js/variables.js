@@ -10,7 +10,7 @@ let gameState = {
     progression: 0
 }
 let currentMap = {
-    bg: './img/map-pico.png'
+    bg: './img/map-pastel.png'
 }
 let character = {
     position: {
@@ -147,7 +147,7 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -3370,
+    x: -3470,
     y: -1250
 }
 canvas.width = 1280

@@ -66,7 +66,7 @@ class Boundary {
         this.height = 80
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0)'
+        ctx.fillStyle = 'rgba(255,0,0,0.5)'
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 }
@@ -79,7 +79,7 @@ class BattleZone {
         this.height = 80
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0)'
+        ctx.fillStyle = 'rgba(255,0,0,0.25)'
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
@@ -93,7 +93,7 @@ class NPC {
         this.height = 80
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0)'
+        ctx.fillStyle = 'rgba(255,0,0,0.1)'
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
@@ -107,7 +107,7 @@ class NPCDialogHitbox {
         this.height = 100
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0)'
+        ctx.fillStyle = 'rgba(255,0,0,0.1)'
         ctx.fillRect(this.position.x, this.position.y, (this.width), (this.height))
     }
 

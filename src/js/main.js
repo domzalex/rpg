@@ -17,7 +17,7 @@ function animate() {
 
 
     //sets all movable objects that move on player directional input
-    movables = [background, ...boundaries, ...npcs, ...npcDialogHitboxes, ...battleZones]
+    movables = [background, ...boundaries, ...battleZones]
 
 
     //draws the character, all of the onscreen graphical elements, and the world boundaries/hitboxes/etc from 'bottom' to 'top'
@@ -28,12 +28,12 @@ function animate() {
     battleZones.forEach((battleZone) => {
         battleZone.draw()
     })
-    npcs.forEach((npc) => {
-        npc.draw()
-    })
-    npcDialogHitboxes.forEach((npcDialogBox) => {
-        npcDialogBox.draw()
-    })
+    // npcs.forEach((npc) => {
+    //     npc.draw()
+    // })
+    // npcDialogHitboxes.forEach((npcDialogBox) => {
+    //     npcDialogBox.draw()
+    // })
     player.draw()
 
 
