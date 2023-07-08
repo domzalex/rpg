@@ -147,8 +147,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -3470,
-    y: -1250
+    x: -5575,
+    y: -2725
 }
 canvas.width = 1280
 canvas.height = 800
@@ -241,14 +241,14 @@ const npcDialogHitboxes = []
 let backgroundImage = new Image()
 backgroundImage.src = currentMap.bg
 const battleBg = new Image()
-battleBg.src = './img/battle-bg.png'
+battleBg.src = './img/battle-bg-pastel.png'
 const enemyImg = new Image()
 
 // Player sprite images
 const playerDown = new Image()
-playerDown.src = './img/player-down.png'
+playerDown.src = './img/player-down-2.png'
 const playerUp = new Image()
-playerUp.src = './img/player-up.png'
+playerUp.src = './img/player-up-2.png'
 const playerLeft = new Image()
 playerLeft.src = './img/player-left.png'
 const playerRight = new Image()
@@ -310,8 +310,8 @@ let background = new Sprite({
 })
 const battleBackground = new Sprite({
     position: {
-        x: -2365,
-        y: -1775
+        x: -3520,
+        y: -3455
     },
     image: battleBg
 })

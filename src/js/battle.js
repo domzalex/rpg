@@ -440,8 +440,6 @@ function startBattle() {
         document.querySelector('#battle-item-menu').style.display = 'none'
     }
 
-    console.log(attacking)
-
 }
 
 function winScreen() {
