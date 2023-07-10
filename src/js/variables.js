@@ -108,7 +108,7 @@ let merchant = {
 const enemies = {
     0: {
         name: 'Neutral Slime',
-        img: 'img/enemy-wind-weak.png',
+        img: 'img/enemy-wind-weak-2.png',
         hp: 50,
         atk: 10,
         def: 15,
@@ -119,7 +119,7 @@ const enemies = {
     },
     1: {
         name: 'Water Slime',
-        img: 'img/enemy-lightning-weak.png',
+        img: 'img/enemy-lightning-weak-2.png',
         hp: 80,
         atk: 25,
         def: 30,
@@ -130,7 +130,7 @@ const enemies = {
     },
     2: {
         name: 'Grass Slime',
-        img: 'img/enemy-fire-weak.png',
+        img: 'img/enemy-fire-weak-2.png',
         hp: 30,
         atk: 7,
         def: 10,
@@ -250,9 +250,11 @@ playerDown.src = './img/player-down-2.png'
 const playerUp = new Image()
 playerUp.src = './img/player-up-2.png'
 const playerLeft = new Image()
-playerLeft.src = './img/player-left.png'
+playerLeft.src = './img/player-left-2.png'
 const playerRight = new Image()
-playerRight.src = './img/player-right.png'
+playerRight.src = './img/player-right-2.png'
+const playerBattle = new Image()
+playerBattle.src = './img/player-battle.png'
 const merchantImage = new Image()
 merchantImage.src = './img/merchant.png'
 
@@ -278,7 +280,7 @@ const battlePlayer = new Sprite({
         x: 850,
         y: 265
     },
-    image: playerLeft,
+    image: playerBattle,
     frames: {
         max: 8
     }
@@ -290,7 +292,7 @@ let enemy = new Sprite({
     },
     image: enemyImg,
     frames: {
-        max: 1
+        max: 8
     },
     name: '',
     maxHp: 20,

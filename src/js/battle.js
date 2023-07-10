@@ -1,6 +1,6 @@
 function chooseEnemy() {
     const chosenEnemy = enemies[Math.floor(Math.random() * Object.keys(enemies).length)]
-    // const chosenEnemy = enemies[1]
+    // const chosenEnemy = enemies[2]
     enemyImg.src = chosenEnemy.img
     enemy.name = chosenEnemy.name
     enemy.maxHp = chosenEnemy.hp
@@ -23,7 +23,7 @@ function resetAttackAnimation() {
 }
 
 function attackAnimation() {
-    battlePlayer.moving = true
+    // battlePlayer.moving = true
 }
 
 function damageCalc(magicType) {
@@ -205,8 +205,13 @@ function startBattle() {
 
     battleAnimationId = window.requestAnimationFrame(startBattle)
     battleBackground.draw()
-    enemy.draw()
+    
     battlePlayer.draw()
+    enemy.draw()
+
+    enemy.moving = true
+    battlePlayer.moving = true
+
     battleMenuPane.style.display = 'flex'
 
     document.querySelector('#player-stats-battle').children[1].innerHTML = 'HP: ' + character.stats.hp

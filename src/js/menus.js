@@ -187,7 +187,6 @@ function populateItems() {
     itemsPane.children[1].children[1].innerHTML = character.items.potions.bigPotion.quantity
     itemsPane.children[2].children[1].innerHTML = character.items.potions.magicPotion.quantity
     itemsPane.children[3].children[1].innerHTML = character.items.potions.bigMagicPotion.quantity
-    itemsPane.children[4].children[1].innerHTML = character.items.potions.antidote.quantity
 }
 
 
