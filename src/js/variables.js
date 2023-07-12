@@ -201,6 +201,7 @@ let npcIterator = 0
 let yesNo = false
 let index = 0
 let shopMenuOpen = false
+let bgmusic = false
 const keys = {
     w: {
         pressed: false
@@ -243,6 +244,10 @@ backgroundImage.src = currentMap.bg
 const battleBg = new Image()
 battleBg.src = './img/battle-bg-pastel.png'
 const enemyImg = new Image()
+const basicAttackImg = new Image()
+basicAttackImg.src = './img/basic-attack.png'
+const basicEnemyAttackImg = new Image()
+basicEnemyAttackImg.src = './img/basic-enemy-attack.png'
 
 // Player sprite images
 const playerDown = new Image()
@@ -278,12 +283,32 @@ let player = new Sprite({
 const battlePlayer = new Sprite({
     position: {
         x: 850,
-        y: 265
+        y: 270
     },
     image: playerBattle,
     frames: {
         max: 8
     }
+})
+const basicAttack = new Sprite({
+	position: {
+		x: 355,
+		y: 270
+	},
+	image: basicAttackImg,
+	frames: {
+		max: 8
+	}
+})
+const basicEnemyAttack = new Sprite({
+	position: {
+		x: 850,
+		y: 270
+	},
+	image: basicEnemyAttackImg,
+	frames: {
+		max: 8
+	}
 })
 let enemy = new Sprite({
     position: {
@@ -323,6 +348,38 @@ player.moving = false
 
 // All elements that are moved
 let movables = [background, ...boundaries, ...battleZones]
+
+
+
+// Audio
+
+const blipSFX = new Audio('./sfx/blip.mp3')
+function blip() {
+	const blipSFX = new Audio('./sfx/blip.mp3')
+	blipSFX.play()
+}
+const selectSFX = new Audio('./sfx/select.mp3')
+function select() {
+	const selectSFX = new Audio('./sfx/select.mp3')
+	selectSFX.play()
+}
+const cancelSFX = new Audio('./sfx/cancel.mp3')
+function cancel() {
+	const cancelSFX = new Audio('./sfx/cancel.mp3')
+	cancelSFX.play()
+}
+
+const slashSFX = new Audio('./sfx/slash.mp3')
+function slash() {
+	const slashSFX = new Audio('./sfx/slash.mp3')
+	slashSFX.play()
+}
+const slashCritSFX = new Audio('./sfx/slash_crit.mp3')
+function slashCrit() {
+	const slashCritSFX = new Audio('./sfx/slash_Crit.mp3')
+	slashCritSFX.play()
+}
+
 
 
 // BATTLE CODE VARIABLES //

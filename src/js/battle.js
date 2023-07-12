@@ -16,14 +16,19 @@ function chooseEnemy() {
 }
 
 function resetAttackAnimation() {
-    // explosion.moving = false
-    // explosion.frames.elapsed = 0
-    // fireAttackAnimation.position.x = 750
-    // fireAttackAnimation.position.y = 350
+    basicAttack.moving = false
+    basicAttack.frames.val = 0
+	basicEnemyAttack.moving = false
+    basicEnemyAttack.frames.val = 0
 }
 
 function attackAnimation() {
-    // battlePlayer.moving = true
+	if (characterTurn) {
+		basicAttack.moving = true
+	}
+	if (enemyTurn) {
+		basicEnemyAttack.moving = true
+	}
 }
 
 function damageCalc(magicType) {
@@ -44,45 +49,79 @@ function damageCalc(magicType) {
         }
         
     }
+	slash()
     baseDamage = Math.round(((((((2 * character.stats.lvl * 1) / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2) * magicWeaknessBoost)
     battleMessage.innerHTML = `${superEffectiveText}You hit the ${enemy.name} for ${baseDamage} points of damage!`
     // battleMessage.innerHTML = 'You hit the ' + enemy.name + ' for ' + baseDamage + ' points of damage!'
     finalDamage = (baseDamage * character.equipment.weapon.attack)
     if (Math.random() < criticalChance) {
+		slashCrit()
         finalDamage = Math.round(baseDamage * criticalBoost)
         battleMessage.innerHTML = 'Critical hit! You hit the ' + enemy.name + ' for ' + finalDamage + ' points of damage!'
     }
 }
 
+function moveEnemy(sprite) {
+	sprite.position.x += 15
+	setTimeout(() => {
+		sprite.position.x -= 30
+		setTimeout(() => {
+			sprite.position.x += 30
+			setTimeout(() => {
+				sprite.position.x -= 30
+				setTimeout(() => {
+					sprite.position.x += 30
+					setTimeout(() => {
+						sprite.position.x -= 15
+					}, 100)
+				}, 100)
+			}, 100)
+		}, 100)
+	}, 100)
+}
+
 function playerAttack(magicType) {
     attacking = true
-    resetAttackAnimation()
-    attackAnimation()
-    damageCalc(magicType)
-    enemy.health -= finalDamage
     magicMultiplier = 1
     magicWeaknessBoost = 1
     battleMenu.style.display = 'none'
+
+	setTimeout(() => {
+		attackAnimation()
+		damageCalc(magicType)
+		enemy.health -= finalDamage
+	}, 500)
+
+	setTimeout(() => {
+		moveEnemy(enemy)
+	}, 800)
+
     setTimeout(() => {
+		attacking = false
         battleMessage.style.display = 'flex'
         if (enemy.health <= 0) {
             document.querySelector('#enemy-health').style.width = '0px'
         } else {
             document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
         }
-    }, 1000)
-    characterTurn = false
+		resetAttackAnimation()
+		
+    }, 1500)
+	
+    
     superEffectiveText = ''
     setTimeout(() => {
         battleMessage.style.display = 'none'
         if (enemy.health <= 0) {
             battleWon = true
-            attacking = false
+            // attacking = false
             endBattle()
         } else {
+			characterTurn = false
             enemyTurn = true
+			enemyAttack()
         }
-    }, 3000)
+    }, 3500)
     
 }
 
@@ -129,9 +168,23 @@ function enemyAttack() {
     attacking = true
     magicType = null
     let damage
+
+	setTimeout(() => {
+		attackAnimation()
+	}, 500)
+
+	setTimeout(() => {
+		moveEnemy(battlePlayer)
+	}, 800)
+
     if (Math.random() <= criticalChance) {
         damage = Math.round(((((((2 * character.stats.lvl * 1) / 5) + 2) * (enemy.atk * (enemy.atk / character.stats.def))) / 50) + 2) * criticalBoost)
         battleMenu.style.display = 'none'
+
+		setTimeout(() => {
+			slashCrit()
+		}, 500)
+
         setTimeout(() => {
             battleMessage.innerHTML = 'Critical hit! The ' + enemy.name + ' attacks and deals ' + Math.round((damage * character.equipment.armor.defense)) + ' points of damage!'
             battleMessage.style.display = 'flex'
@@ -139,28 +192,37 @@ function enemyAttack() {
             if (character.stats.hp < 0) {
                 character.stats.hp = 0
             }
-        }, 1000)
+			resetAttackAnimation()
+        }, 1500)
     } else {
         damage = Math.round((((((2 * character.stats.lvl * 1) / 5) + 2) * (enemy.atk * (enemy.atk / character.stats.def))) / 50) + 2)
         battleMenu.style.display = 'none'
+
+		setTimeout(() => {
+			slash()
+		}, 500)
+
         setTimeout(() => {
+			
             battleMessage.innerHTML = 'The ' + enemy.name + ' attacks and deals ' + Math.round((damage * character.equipment.armor.defense)) + ' points of damage!'
             battleMessage.style.display = 'flex'
             character.stats.hp -= Math.round((damage * character.equipment.armor.defense))
             if (character.stats.hp < 0) {
                 character.stats.hp = 0
             }
-        }, 1000)
+			resetAttackAnimation()
+        }, 1500)
     }
-    enemyTurn = false
+    attacking = false
     setTimeout(() => {
         battleMessage.style.display = 'none'
         battleMenu.style.display = 'flex'
         characterTurn = true
-        attacking = false
+        
         if (character.stats.hp <= 0) {
             endBattle()
         }
+		enemyTurn = false
     }, 3000)
 }
 
@@ -187,6 +249,8 @@ function checkLevelUp() {
 }
 
 function startBattle() {
+
+
 
     battleWon = false
     levelChecked = false
@@ -223,22 +287,23 @@ function startBattle() {
             characterTurn = true
         } else {
             enemyTurn = true
+			enemyAttack()
         }
     }
 
-    if (characterTurn) {
+    if (characterTurn && !attacking) {
         battleMenu.style.display = 'flex'
-    } else if (enemyTurn && enemy.health > 0) {
-        enemyAttack()
-    }
+    } 
 
     if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen) {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
         if (keys.d.pressed && !attacking) {
+			
             if (!keyFiredD) {
                 keyFiredD = true
                 keys.d.pressed = false
                 if (battleMenuIndex < 3) {
+					blip()
                     battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
                     battleMenuIndex += 1
                     battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
@@ -246,10 +311,12 @@ function startBattle() {
             }
         }
         if (keys.a.pressed && !attacking) {
+			
             if (!keyFiredA) {
                 keyFiredA = true
                 keys.a.pressed = false
                 if (battleMenuIndex > 0) {
+					blip()
                     battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
                     battleMenuIndex -= 1
                     battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
@@ -259,13 +326,16 @@ function startBattle() {
     }
 
     if (magicMenuOpen) {
+		document.querySelector('#magic-menu').style.display = 'flex'
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-        document.querySelector('#magic-menu').style.display = 'flex'
+        
         if (keys.d.pressed && !attacking) {
+			
             if (!keyFiredD) {
                 keyFiredD = true
                 keys.d.pressed = false
                 if (magicMenuIndex < 2) {
+					blip()
                     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
                     magicMenuIndex += 1
                     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
@@ -273,10 +343,12 @@ function startBattle() {
             }
         }
         if (keys.a.pressed && !attacking) {
+			
             if (!keyFiredA) {
                 keyFiredA = true
                 keys.a.pressed = false
                 if (magicMenuIndex > 0) {
+					blip()
                     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
                     magicMenuIndex -= 1
                     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
@@ -308,7 +380,8 @@ function startBattle() {
             
         }
         window.addEventListener('keyup', (e) => {
-            if (e.key === 'Escape') {
+            if (e.key === 'Escape' && magicMenuOpen) {
+				cancelSFX.play()
                 magicMenuOpen = false
             }
         })
@@ -322,6 +395,7 @@ function startBattle() {
     if (!magicMenuOpen && !battleItemMenuOpen) {
         if (keyFiredEnter && !attacking) {
             keyFiredEnter = false
+			select()
             if (battleMenuIndex === 0) {
                 playerAttack()
             }
@@ -348,11 +422,20 @@ function startBattle() {
                     enemyTurn = true
                 }
             }
-            battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-            battleMenuIndex = 0
-            battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+            setTimeout(() => {
+				battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
+				battleMenuIndex = 0
+				battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+			}, 60)
         }
     }
+
+	if (basicAttack.moving) {
+		basicAttack.draw()
+	}
+	if (basicEnemyAttack.moving) {
+		basicEnemyAttack.draw()
+	}
 
     //opens item menu in battle
     if (battleItemMenuOpen) {
@@ -363,6 +446,7 @@ function startBattle() {
                 keyFiredD = true
                 keys.d.pressed = false
                 if (battleItemIndex < 3) {
+					blip()
                     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
                     battleItemIndex += 1
                     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
@@ -374,6 +458,7 @@ function startBattle() {
                 keyFiredA = true
                 keys.a.pressed = false
                 if (battleItemIndex > 0) {
+					blip()
                     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
                     battleItemIndex -= 1
                     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
@@ -382,6 +467,7 @@ function startBattle() {
         }
         if (keyFiredEnter) {
             keyFiredEnter = false
+			select()
             if (battleItemIndex == 0) {
                 if (character.items.potions.potion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
                     character.items.potions.potion.quantity--
@@ -437,7 +523,8 @@ function startBattle() {
         }
         
         window.addEventListener('keyup', (e) => {
-            if (e.key === 'Escape') {
+            if (e.key === 'Escape' && battleItemMenuOpen) {
+				cancelSFX.play()
                 battleItemMenuOpen = false
             }
         })
@@ -460,6 +547,7 @@ function winScreen() {
             document.querySelector('#level-up-modal').style.display = 'none'
             document.querySelector('#win-screen').style.display = "none"
             window.cancelAnimationFrame(winScreenAnimationId)
+			battle.initiated = false
             animate()
         }
     }   
@@ -472,6 +560,7 @@ function loseScreen() {
         keyFiredEnter = false
         document.querySelector('#lose-screen').style.display = "none"
         window.cancelAnimationFrame(loseScreenAnimationId)
+		battle.initiated = false
         animate()
     }   
 }

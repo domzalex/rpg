@@ -366,6 +366,5 @@ function animate() {
 }
 
 
-
 // Run main game loop
 animate()

@@ -28,10 +28,12 @@ function animateMenu() {
     document.querySelector('#player-stats').style.display = 'flex'
 
     if (keys.w.pressed) {
+
         if (!keyFiredW) {
             keyFiredW = true
             keys.w.pressed = false
             if (menuIndex > 0) {
+				blip()
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
                 menuIndex -= 1
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
@@ -39,10 +41,12 @@ function animateMenu() {
         }
     }
     if (keys.s.pressed) {
+		
         if (!keyFiredS) {
             keyFiredS = true
             keys.s.pressed = false
             if (menuIndex < 2) {
+				blip()
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
                 menuIndex += 1
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
@@ -51,12 +55,14 @@ function animateMenu() {
     }
 
     if (menuIndex === 2 && keyFiredEnter) {
+		selectSFX.play()
         createSaveFile()
         document.querySelector('#save-alert').style.opacity = '1'
         setTimeout(() => {
             document.querySelector('#save-alert').style.opacity = '0'
         }, 2000)
     } else if (menuIndex === 0 && keyFiredEnter) {
+		select()
         itemOpen = true
     }
 
@@ -99,10 +105,12 @@ function animateMenuItems() {
 
     // Handles specific item to hover over
     if (keys.d.pressed) {
+		
         if (!keyFiredD) {
             keyFiredD = true
             keys.d.pressed = false
             if (itemIndex < 4) {
+				blip()
                 itemsPane.children[itemIndex].className = 'item'
                 itemIndex += 1
                 itemsPane.children[itemIndex].className = 'item item-hovered'
@@ -114,6 +122,7 @@ function animateMenuItems() {
             keyFiredA = true
             keys.a.pressed = false
             if (itemIndex > 0) {
+				blip()
                 itemsPane.children[itemIndex].className = 'item'
                 itemIndex -= 1
                 itemsPane.children[itemIndex].className = 'item item-hovered'
@@ -126,9 +135,11 @@ function animateMenuItems() {
     window.addEventListener('keypress', (e) => {
         switch (e.key) {
             case 'Enter' :
+				
                 if (keyFiredEnter && itemOpen === true) {
                     keyFiredEnter = false
                     if (itemIndex === 0 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.potion.quantity > 0)) {
+						select()
                         character.stats.hp += character.items.potions.potion.restore
                         character.items.potions.potion.quantity -= 1
                         if (character.stats.hp > character.stats.maxHp) {
@@ -136,6 +147,7 @@ function animateMenuItems() {
                         }
                     }
                     else if (itemIndex === 1 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.bigPotion.quantity > 0)) {
+						select()
                         character.stats.hp += character.items.potions.bigPotion.restore
                         character.items.potions.bigPotion.quantity -= 1
                         if (character.stats.hp > character.stats.maxHp) {
@@ -143,6 +155,7 @@ function animateMenuItems() {
                         }
                     }
                     else if (itemIndex === 2 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.magicPotion.quantity > 0)) {
+						select()
                         character.stats.mp += character.items.potions.magicPotion.restore
                         character.items.potions.magicPotion.quantity -= 1
                         if (character.stats.mp > character.stats.maxMp) {
@@ -150,6 +163,7 @@ function animateMenuItems() {
                         }
                     }
                     else if (itemIndex === 3 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.bigMagicPotion.quantity > 0)) {
+						select()
                         character.stats.mp += character.items.potions.bigMagicPotion.restore
                         character.items.potions.bigMagicPotion.quantity -= 1
                         if (character.stats.mp > character.stats.maxMp) {
@@ -168,6 +182,7 @@ function animateMenuItems() {
     // Handles exiting of item screen
     window.addEventListener('keyup', (e) => {
         if (e.key === 'Escape') {
+			cancelSFX.play()
             itemOpen = false
             itemsPane.children[itemIndex].className = 'item'
             itemsPane.children[0].className = 'item item-hovered'
