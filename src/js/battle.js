@@ -97,7 +97,7 @@ function playerAttack(magicType) {
 	}, 800)
 
     setTimeout(() => {
-		attacking = false
+		
         battleMessage.style.display = 'flex'
         if (enemy.health <= 0) {
             document.querySelector('#enemy-health').style.width = '0px'
@@ -117,6 +117,7 @@ function playerAttack(magicType) {
             // attacking = false
             endBattle()
         } else {
+			attacking = false
 			characterTurn = false
             enemyTurn = true
 			enemyAttack()
@@ -213,15 +214,17 @@ function enemyAttack() {
 			resetAttackAnimation()
         }, 1500)
     }
-    attacking = false
+    
     setTimeout(() => {
         battleMessage.style.display = 'none'
         battleMenu.style.display = 'flex'
+		attacking = false
         characterTurn = true
         
         if (character.stats.hp <= 0) {
             endBattle()
         }
+		attacking = false
 		enemyTurn = false
     }, 3000)
 }
@@ -295,7 +298,7 @@ function startBattle() {
         battleMenu.style.display = 'flex'
     } 
 
-    if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen) {
+    if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
         if (keys.d.pressed && !attacking) {
 			
@@ -360,6 +363,7 @@ function startBattle() {
             magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
 
             if (character.stats.mp >= magicType.mp) {
+				select()
                 keyFiredEnter = false
                 magicMenu.style.display = 'none'
                 magicMenuOpen = false
