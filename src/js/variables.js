@@ -110,7 +110,7 @@ const enemies = {
         name: 'Neutral Slime',
         img: 'img/enemy-wind-weak-2.png',
         hp: 50,
-        atk: 10,
+        atk: 20,
         def: 15,
         spd: 8,
         exp: 30,
@@ -121,7 +121,7 @@ const enemies = {
         name: 'Water Slime',
         img: 'img/enemy-lightning-weak-2.png',
         hp: 80,
-        atk: 25,
+        atk: 60,
         def: 30,
         spd: 5,
         exp: 60,
@@ -132,7 +132,7 @@ const enemies = {
         name: 'Grass Slime',
         img: 'img/enemy-fire-weak-2.png',
         hp: 30,
-        atk: 7,
+        atk: 14,
         def: 10,
         spd: 20,
         exp: 20,
@@ -194,6 +194,7 @@ let attacking = false
 let useMagic = false
 let pressedKeys = []
 let whichCollision = collisions
+let keyCheck = false
 let collisionsSet = false
 let npcDialog = false
 let inDialog = false

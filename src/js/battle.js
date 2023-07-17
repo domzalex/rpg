@@ -15,13 +15,37 @@ function chooseEnemy() {
     document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
 }
 
+
+function itemUseEndTurn() {
+    battleMessage.innerHTML = ''
+    setTimeout(() => {
+        battleMessage.style.display = 'none'
+        setTimeout(() => {
+            keyCheck = false
+        }, 100)
+        characterTurn = false
+        enemyTurn = true
+        enemyAttack()
+    }, 500)
+}
+function clearItemNoUseMessage() {
+    battleMessage.style.display = 'flex'
+    setTimeout(() => {
+        battleMessage.style.display = 'none'
+        battleMessage.innerHTML = ''
+        setTimeout(() => {
+            keyCheck = false
+        }, 100)
+    }, 1500)
+}
+
+
 function resetAttackAnimation() {
     basicAttack.moving = false
     basicAttack.frames.val = 0
 	basicEnemyAttack.moving = false
     basicEnemyAttack.frames.val = 0
 }
-
 function attackAnimation() {
 	if (characterTurn) {
 		basicAttack.moving = true
@@ -49,15 +73,16 @@ function damageCalc(magicType) {
         }
         
     }
-	slash()
-    baseDamage = Math.round(((((((2 * character.stats.lvl * 1) / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2) * magicWeaknessBoost)
-    battleMessage.innerHTML = `${superEffectiveText}You hit the ${enemy.name} for ${baseDamage} points of damage!`
-    // battleMessage.innerHTML = 'You hit the ' + enemy.name + ' for ' + baseDamage + ' points of damage!'
-    finalDamage = (baseDamage * character.equipment.weapon.attack)
+    baseDamage = Math.round((((((((2 * character.stats.lvl) / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2) * magicWeaknessBoost))
+    calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
+    finalDamage = Math.round(calcDamage * character.equipment.weapon.attack)
     if (Math.random() < criticalChance) {
 		slashCrit()
-        finalDamage = Math.round(baseDamage * criticalBoost)
+        finalDamage = Math.round(calcDamage * criticalBoost)
         battleMessage.innerHTML = 'Critical hit! You hit the ' + enemy.name + ' for ' + finalDamage + ' points of damage!'
+    } else {
+        slash()
+        battleMessage.innerHTML = `${superEffectiveText}You hit the ${enemy.name} for ${calcDamage} points of damage!`
     }
 }
 
@@ -168,65 +193,53 @@ function endBattle() {
 function enemyAttack() {
     attacking = true
     magicType = null
-    let damage
 
-	setTimeout(() => {
-		attackAnimation()
-	}, 500)
-
-	setTimeout(() => {
-		moveEnemy(battlePlayer)
-	}, 800)
-
-    if (Math.random() <= criticalChance) {
-        damage = Math.round(((((((2 * character.stats.lvl * 1) / 5) + 2) * (enemy.atk * (enemy.atk / character.stats.def))) / 50) + 2) * criticalBoost)
-        battleMenu.style.display = 'none'
-
-		setTimeout(() => {
-			slashCrit()
-		}, 500)
-
-        setTimeout(() => {
-            battleMessage.innerHTML = 'Critical hit! The ' + enemy.name + ' attacks and deals ' + Math.round((damage * character.equipment.armor.defense)) + ' points of damage!'
-            battleMessage.style.display = 'flex'
-            character.stats.hp -= Math.round((damage * character.equipment.armor.defense))
-            if (character.stats.hp < 0) {
-                character.stats.hp = 0
-            }
-			resetAttackAnimation()
-        }, 1500)
-    } else {
-        damage = Math.round((((((2 * character.stats.lvl * 1) / 5) + 2) * (enemy.atk * (enemy.atk / character.stats.def))) / 50) + 2)
-        battleMenu.style.display = 'none'
-
-		setTimeout(() => {
-			slash()
-		}, 500)
-
-        setTimeout(() => {
-			
-            battleMessage.innerHTML = 'The ' + enemy.name + ' attacks and deals ' + Math.round((damage * character.equipment.armor.defense)) + ' points of damage!'
-            battleMessage.style.display = 'flex'
-            character.stats.hp -= Math.round((damage * character.equipment.armor.defense))
-            if (character.stats.hp < 0) {
-                character.stats.hp = 0
-            }
-			resetAttackAnimation()
-        }, 1500)
-    }
-    
+    battleMenu.style.display = 'none'
+    baseDamage = Math.round((((((2 / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2))
+    calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
+    finalDamage = Math.round(calcDamage * character.equipment.armor.defense)
     setTimeout(() => {
-        battleMessage.style.display = 'none'
-        battleMenu.style.display = 'flex'
-		attacking = false
-        characterTurn = true
-        
-        if (character.stats.hp <= 0) {
-            endBattle()
+        attackAnimation()
+
+        setTimeout(() => {
+            moveEnemy(battlePlayer)
+        }, 300)
+
+        if (Math.random() < criticalChance) {
+            slashCrit()
+            finalDamage = Math.round((finalDamage * criticalBoost) * character.equipment.armor.defense)
+            character.stats.hp -= finalDamage
+            battleMessage.innerHTML = 'Critical hit! The ' + enemy.name + ' hits for ' + finalDamage + ' points of damage!'
+        } else {
+            slash()
+            character.stats.hp -= finalDamage
+            battleMessage.innerHTML = `The ${enemy.name} attacks and deals ${finalDamage} points of damage!`
         }
-		attacking = false
-		enemyTurn = false
-    }, 3000)
+        if (character.stats.hp < 0) {
+            character.stats.hp = 0
+        }
+
+        setTimeout(() => {
+            battleMessage.style.display = 'flex'
+            resetAttackAnimation()
+        }, 1000)
+
+        setTimeout(() => {
+            battleMessage.style.display = 'none'
+            battleMenu.style.display = 'flex'
+            attacking = false
+            characterTurn = true
+            
+            if (character.stats.hp <= 0) {
+                endBattle()
+            }
+            attacking = false
+            enemyTurn = false
+        }, 2500)
+
+    }, 500)
+    
+    
 }
 
 function checkLevelUp() {
@@ -300,7 +313,7 @@ function startBattle() {
 
     if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-        if (keys.d.pressed && !attacking) {
+        if (keys.d.pressed && !attacking && !keyCheck) {
 			
             if (!keyFiredD) {
                 keyFiredD = true
@@ -313,7 +326,7 @@ function startBattle() {
                 }
             }
         }
-        if (keys.a.pressed && !attacking) {
+        if (keys.a.pressed && !attacking && !keyCheck) {
 			
             if (!keyFiredA) {
                 keyFiredA = true
@@ -397,7 +410,7 @@ function startBattle() {
     }
     
     if (!magicMenuOpen && !battleItemMenuOpen) {
-        if (keyFiredEnter && !attacking) {
+        if (keyFiredEnter && !attacking && !keyCheck) {
             keyFiredEnter = false
 			select()
             if (battleMenuIndex === 0) {
@@ -444,9 +457,10 @@ function startBattle() {
     //opens item menu in battle
     if (battleItemMenuOpen) {
         document.querySelector('#battle-item-menu').style.display = 'flex'
+        document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
 
         if (keys.d.pressed) {
-            if (!keyFiredD) {
+            if (!keyFiredD && !keyCheck) {
                 keyFiredD = true
                 keys.d.pressed = false
                 if (battleItemIndex < 3) {
@@ -458,7 +472,7 @@ function startBattle() {
             }
         }
         if (keys.a.pressed) {
-            if (!keyFiredA) {
+            if (!keyFiredA && !keyCheck) {
                 keyFiredA = true
                 keys.a.pressed = false
                 if (battleItemIndex > 0) {
@@ -469,8 +483,9 @@ function startBattle() {
                 }
             }
         }
-        if (keyFiredEnter) {
+        if (keyFiredEnter && !keyCheck) {
             keyFiredEnter = false
+            keyCheck = true
 			select()
             if (battleItemIndex == 0) {
                 if (character.items.potions.potion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
@@ -479,10 +494,18 @@ function startBattle() {
                     if (character.stats.hp > character.stats.maxHp) {
                         character.stats.hp = character.stats.maxHp
                     }
-                    characterTurn = false
-                    enemyTurn = true
+                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.style.display = 'flex'
+                    setTimeout(() => {
+                        itemUseEndTurn()
+                    }, 1500)
                 } else {
-                    alert('cannot use this now/not enough quantity')
+                    if (character.items.potions.potion.quantity == 0) {
+                        battleMessage.innerHTML = 'You do not have any of these!'
+                    } else if (character.stats.hp == character.stats.maxHp) {
+                        battleMessage.innerHTML = 'Health already at max!'
+                    }
+                    clearItemNoUseMessage()
                 }
             } else if (battleItemIndex == 1) {
                 if (character.items.potions.bigPotion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
@@ -491,10 +514,18 @@ function startBattle() {
                     if (character.stats.hp > character.stats.maxHp) {
                         character.stats.hp = character.stats.maxHp
                     }
-                    characterTurn = false
-                    enemyTurn = true
+                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.style.display = 'flex'
+                    setTimeout(() => {
+                        itemUseEndTurn()
+                    }, 1500)
                 } else {
-                    alert('cannot use this now/not enough quantity')
+                    if (character.items.potions.bigPotion.quantity == 0) {
+                        battleMessage.innerHTML = 'You do not have any of these!'
+                    } else if (character.stats.hp == character.stats.maxHp) {
+                        battleMessage.innerHTML = 'Health already at max!'
+                    }
+                    clearItemNoUseMessage()
                 }
             } else if (battleItemIndex == 2) {
                 if (character.items.potions.magicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
@@ -503,10 +534,18 @@ function startBattle() {
                     if (character.stats.mp > character.stats.maxMp) {
                         character.stats.mp = character.stats.maxMp
                     }
-                    characterTurn = false
-                    enemyTurn = true
+                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.style.display = 'flex'
+                    setTimeout(() => {
+                        itemUseEndTurn()
+                    }, 1500)
                 } else {
-                    alert('cannot use this now/not enough quantity')
+                    if (character.items.potions.magicPotion.quantity == 0) {
+                        battleMessage.innerHTML = 'You do not have any of these!'
+                    } else if (character.stats.mp == character.stats.maxMp) {
+                        battleMessage.innerHTML = 'Health already at max!'
+                    }
+                    clearItemNoUseMessage()
                 }
             } else if (battleItemIndex == 3) {
                 if (character.items.potions.bigMagicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
@@ -515,12 +554,21 @@ function startBattle() {
                     if (character.stats.mp > character.stats.maxMp) {
                         character.stats.mp = character.stats.maxMp
                     }
-                    characterTurn = false
-                    enemyTurn = true
+                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.style.display = 'flex'
+                    setTimeout(() => {
+                        itemUseEndTurn()
+                    }, 1500)
                 } else {
-                    alert('cannot use this now/not enough quantity')
+                    if (character.items.potions.bigMagicPotion.quantity == 0) {
+                        battleMessage.innerHTML = 'You do not have any of these!'
+                    } else if (character.stats.mp == character.stats.maxMp) {
+                        battleMessage.innerHTML = 'Health already at max!'
+                    }
+                    clearItemNoUseMessage()
                 }
             }
+            document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
             battleItemMenuOpen = false
             battleItemIndex = 0
             document.querySelector('#battle-item-menu').style.display = 'none'
@@ -530,6 +578,8 @@ function startBattle() {
             if (e.key === 'Escape' && battleItemMenuOpen) {
 				cancelSFX.play()
                 battleItemMenuOpen = false
+                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
+                battleItemIndex = 0
             }
         })
     } else {
