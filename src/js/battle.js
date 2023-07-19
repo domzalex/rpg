@@ -195,7 +195,7 @@ function enemyAttack() {
     magicType = null
 
     battleMenu.style.display = 'none'
-    baseDamage = Math.round((((((2 / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2))
+    baseDamage = Math.round((((((2 / 5) + 2) * ((enemy.atk) * (enemy.atk / character.stats.def))) / 50) + 2))
     calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
     finalDamage = Math.round(calcDamage * character.equipment.armor.defense)
     setTimeout(() => {
@@ -255,7 +255,11 @@ function checkLevelUp() {
         character.stats.def = Math.round(character.stats.def * 1.1)
         character.stats.spd = Math.round(character.stats.spd * 1.1)
         character.stats.power = Math.round(character.stats.power * 1.1)
-        character.stats.expToNext = Math.round(character.stats.expToNext * 2) - Math.round(character.stats.expToNext / 4)
+        character.stats.expToNext = Math.round(Math.pow(character.stats.lvl, 3))
+        // character.stats.expToNext = Math.round(((6 / 5) * Math.pow(character.stats.lvl, 3)) - (15 * (Math.pow(character.stats.lvl, 2))) + (100 * character.stats.lvl) - 140)
+        if (character.stats.exp >= character.stats.expToNext) {
+            checkLevelUp()
+        }
     } else {
         document.querySelector('#level-up-modal').style.display = 'none'
         document.querySelector('#win-screen').style.display = "none"
