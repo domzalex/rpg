@@ -42,6 +42,7 @@ function animate() {
     player.moving = false
 
 
+
     //handles main character movement
     if (keys.w.pressed && pressedKeys[pressedKeys.length - 1] === 'w') {
         if (inDialog == false) {
@@ -361,8 +362,6 @@ function animate() {
             
         }
     }
-
-
 }
 
 

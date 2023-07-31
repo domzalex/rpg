@@ -34,18 +34,18 @@ let character = {
     magic: {
         fire: {
             name: 'fire',
-            power: 1.5,
-            mp: 3
+            power: 3.5,
+            mp: 10
         },
         lightning: {
             name: 'lightning',
-            power: 1.75,
-            mp: 6
+            power: 5,
+            mp: 16
         },
         wind: {
             name: 'wind',
-            power: 1.25,
-            mp: 1
+            power: 2.5,
+            mp: 8
         }
     },
     equipment: {
@@ -109,7 +109,7 @@ const enemies = {
     0: {
         name: 'Neutral Slime',
         img: 'img/enemy-wind-weak-2.png',
-        hp: 30,
+        hp: 20,
         atk: 15,
         def: 60,
         spd: 8,
@@ -120,7 +120,7 @@ const enemies = {
     1: {
         name: 'Water Slime',
         img: 'img/enemy-lightning-weak-2.png',
-        hp: 35,
+        hp: 30,
         atk: 20,
         def: 35,
         spd: 5,
@@ -131,7 +131,7 @@ const enemies = {
     2: {
         name: 'Grass Slime',
         img: 'img/enemy-fire-weak-2.png',
-        hp: 25,
+        hp: 15,
         atk: 25,
         def: 15,
         spd: 20,
@@ -381,6 +381,11 @@ function slashCrit() {
 	slashCritSFX.play()
 }
 
+const tallGrassSFX = new Audio('./sfx/tall-grass.mp3')
+function tallGrass() {
+	const tallGrassSFX = new Audio('./sfx/tall-grass.mp3')
+	tallGrassSFX.play()
+}
 
 
 // BATTLE CODE VARIABLES //
