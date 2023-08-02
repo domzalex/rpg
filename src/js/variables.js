@@ -80,31 +80,7 @@ let character = {
     }
 
 }
-let merchant = {
-    dialog: {
-        0: 'Hello, traveler.',
-        1: 'My name is merchant, and I sell items.',
-        2: 'Would you like to buy something?'
-    },
-    items: {
-        0: {
-            name: 'Big Potion',
-            cost: 100
-        },
-        1: {
-            name: 'Big Mana Potion',
-            cost: 100
-        },
-        2: {
-            name: 'Armor Set',
-            cost: 500
-        },
-        3: {
-            name: 'BIG Sword',
-            cost: 500
-        },
-    }
-}
+
 const enemies = {
     0: {
         name: 'Neutral Slime',
@@ -147,8 +123,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -5575,
-    y: -2725
+    x: -1500,
+    y: -6200
 }
 canvas.width = 1280
 canvas.height = 800
@@ -407,5 +383,7 @@ let superEffectiveText = ''
 const battleMenuPane = document.querySelector('#battle-pane')
 const battleMenu = document.querySelector('#battle-menu')
 const magicMenu = document.querySelector('#magic-menu')
+let playerHealth = document.querySelector('#player-health')
+let playerMagic = document.querySelector('#player-magic')
 let battleAnimationId
 let winScreenAnimationId

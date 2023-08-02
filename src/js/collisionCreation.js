@@ -20,12 +20,7 @@ function createCollisions(setCollisionMap) {
 for (let i = 0; i < battleZonesData.length; i+= 100) {
     battleZonesMap.push(battleZonesData.slice(i, 100 + i))
 }
-for (let i = 0; i < npcData.length; i+= 100) {
-    npcMap.push(npcData.slice(i, 100 + i))
-}
-for (let i = 0; i < npcData.length; i+= 100) {
-    npcMap.push(npcData.slice(i, 100 + i))
-}
+
 // Populates overworld collision maps
 function createBoundaries() {
     boundaries = []
@@ -40,33 +35,42 @@ function createBoundaries() {
         }))
     })
 }
-// function createNPC() {
-//     npcs = []
-//     npcMap.forEach((row, i) => {
-//         row.forEach(((symbol, j) => {
-//             if (symbol === 63) {
-//                 npcs.push(new NPC({position: {
-//                     x: j * NPC.width + (offset.x),
-//                     y: i * NPC.height + (offset.y)
-//                 }}))
-//             }
-//         }))
-//     })
-// }
-// function createNPCdialog() {
-//     npcDialogHitboxes = []
-//     npcMap.forEach((row, i) => {
-//         row.forEach(((symbol, j) => {
-//             if (symbol === 63) {
-//                 npcDialogHitboxes.push(new NPCDialogHitbox({position: {
-//                     x: j * NPCDialogHitbox.width + (offset.x),
-//                     y: i * NPCDialogHitbox.height + (offset.y)
-//                 }}))
-//                 console.log('new dialog hitbox')
-//             }
-//         }))
-//     })
-// }
+
+let npc1 = new NPC({
+	position: {
+		x: 1920 + offset.x,
+		y: 6315 + offset.y
+	},
+	image: merchantImage,
+	frames: {
+        max: 1
+    },
+	type: 'information',
+	dialog: {
+		0: 'test',
+		1: 'how are you?'
+	}
+})
+let npc2 = new NPC({
+	position: {
+		x: 4000 + offset.x,
+		y: 4000 + offset.y
+	},
+	image: merchantImage,
+	frames: {
+        max: 1
+    },
+	type: 'merchant',
+	dialog: {
+		0: 'POOP',
+		1: 'I LOVE POOP?'
+	}
+})
+
+const npcList = [npc1, npc2]
+
+
+
 function checkCollisionChange() {
     if (!collisionsSet) {
         switch (whichCollision) {
@@ -92,27 +96,3 @@ battleZonesMap.forEach((row, i) => {
         }
     }))
 })
-// npcMap.forEach((row, i) => {
-//     row.forEach(((symbol, j) => {
-//         if (symbol === 63) {
-//             npcs.push(new NPC({position: {
-//                 x: j * NPC.width + offset.x,
-//                 y: i * NPC.height + offset.y
-//             }}))
-//         }
-//     }))
-// })
-// npcMap.forEach((row, i) => {
-//     row.forEach(((symbol, j) => {
-//         if (symbol === 63) {
-//             npcs.push(new NPC({position: {
-//                 x: j * NPC.width + offset.x,
-//                 y: i * NPC.height + offset.y
-//             }}))
-//             npcDialogHitboxes.push(new NPCDialogHitbox({position: {
-//                 x: j * NPCDialogHitbox.width + (offset.x - 10),
-//                 y: i * NPCDialogHitbox.height + (offset.y - 10)
-//             }}))
-//         }
-//     }))
-// })

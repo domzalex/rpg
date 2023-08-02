@@ -270,7 +270,17 @@ function checkLevelUp() {
 
 function startBattle() {
 
-
+	function checkMagicReq() {
+		let index = 0
+		document.querySelectorAll('.battle-magic').forEach(element => {
+			if (character.stats.mp < Object.values(character.magic)[index].mp) {
+				element.style.opacity = '0.5'
+			} else {
+				element.style.opacity = '1'
+			}
+			index += 1
+		})
+	}
 
     battleWon = false
     levelChecked = false
@@ -298,8 +308,8 @@ function startBattle() {
 
     battleMenuPane.style.display = 'flex'
 
-    document.querySelector('#player-stats-battle').children[1].innerHTML = 'HP: ' + character.stats.hp
-    document.querySelector('#player-stats-battle').children[2].innerHTML = 'MP: ' + character.stats.mp
+    document.querySelector('#player-battle-health').innerHTML = `HP: ${character.stats.hp}`
+    document.querySelector('#player-battle-magic').innerHTML = `MP: ${character.stats.mp}`
 
     if (!speedCheck) {
         speedCheck = true
@@ -346,8 +356,12 @@ function startBattle() {
     }
 
     if (magicMenuOpen) {
+
+		checkMagicReq()
+
 		document.querySelector('#magic-menu').style.display = 'flex'
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+		document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
         
         if (keys.d.pressed && !attacking) {
 			
@@ -378,6 +392,7 @@ function startBattle() {
         if (keyFiredEnter && !attacking) {
             
             magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
+			document.querySelector('#magic-req').innerHTML = ''
 
             if (character.stats.mp >= magicType.mp) {
 				select()
@@ -398,6 +413,8 @@ function startBattle() {
                 magicMenuIndex = 0
                 document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
             }
+
+			checkMagicReq()
             
         }
         window.addEventListener('keyup', (e) => {
@@ -422,6 +439,7 @@ function startBattle() {
             }
             else if (battleMenuIndex === 1) {
                 magicMenuOpen = true
+				checkMagicReq()
             }
             else if (battleMenuIndex === 2) {
                 battleItemMenuOpen = true

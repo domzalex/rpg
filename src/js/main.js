@@ -17,7 +17,7 @@ function animate() {
 
 
     //sets all movable objects that move on player directional input
-    movables = [background, ...boundaries, ...battleZones]
+    movables = [background, ...boundaries, ...npcList, ...battleZones]
 
 
     //draws the character, all of the onscreen graphical elements, and the world boundaries/hitboxes/etc from 'bottom' to 'top'
@@ -28,19 +28,25 @@ function animate() {
     battleZones.forEach((battleZone) => {
         battleZone.draw()
     })
-    // npcs.forEach((npc) => {
-    //     npc.draw()
-    // })
-    // npcDialogHitboxes.forEach((npcDialogBox) => {
-    //     npcDialogBox.draw()
-    // })
-    player.draw()
 
+    
+
+	npcList.forEach(npc => {
+		npc.draw()		
+	})
+
+	player.draw()
 
     //sets player moving variable to handle if player is moving or not
     let moving = true
     player.moving = false
 
+	for (let i = 0; i < npcList.length; i++) {
+		const npc = npcList[i]
+		if (rectangleCollision({rectangle1: player, rectangle2: {...npc}})) {
+			console.log('entering dialog with NPC')
+		}
+	}
 
 
     //handles main character movement
@@ -48,6 +54,24 @@ function animate() {
         if (inDialog == false) {
             player.image = player.sprites.up
             player.moving = true
+			for (let i = 0; i < npcList.length; i++) {
+                const npc = npcList[i]
+                if (
+                    rectangleCollision({
+                        rectangle1: player,
+                        rectangle2: {
+                            ...npc,
+                            position: {
+                                x: npc.position.x,
+                                y: npc.position.y + 1
+                            }
+                        }
+                    })
+                ) {
+                    moving = false
+                    break
+                }
+            }
             for (let i = 0; i < boundaries.length; i++) {
                 const boundary = boundaries[i]
                 if (
@@ -78,6 +102,24 @@ function animate() {
         if (inDialog == false) {
             player.image = player.sprites.left
             player.moving = true
+			for (let i = 0; i < npcList.length; i++) {
+                const npc = npcList[i]
+                if (
+                    rectangleCollision({
+                        rectangle1: player,
+                        rectangle2: {
+                            ...npc,
+                            position: {
+                                x: npc.position.x + 1,
+                                y: npc.position.y
+                            }
+                        }
+                    })
+                ) {
+                    moving = false
+                    break
+                }
+            }
             for (let i = 0; i < boundaries.length; i++) {
                 const boundary = boundaries[i]
                 if (
@@ -108,6 +150,24 @@ function animate() {
         if (inDialog == false) {
             player.image = player.sprites.down
             player.moving = true
+			for (let i = 0; i < npcList.length; i++) {
+                const npc = npcList[i]
+                if (
+                    rectangleCollision({
+                        rectangle1: player,
+                        rectangle2: {
+                            ...npc,
+                            position: {
+                                x: npc.position.x,
+                                y: npc.position.y - 1
+                            }
+                        }
+                    })
+                ) {
+                    moving = false
+                    break
+                }
+            }
             for (let i = 0; i < boundaries.length; i++) {
                 const boundary = boundaries[i]
                 if (
@@ -138,6 +198,24 @@ function animate() {
         if (inDialog == false) {
             player.image = player.sprites.right
             player.moving = true
+			for (let i = 0; i < npcList.length; i++) {
+                const npc = npcList[i]
+                if (
+                    rectangleCollision({
+                        rectangle1: player,
+                        rectangle2: {
+                            ...npc,
+                            position: {
+                                x: npc.position.x - 1,
+                                y: npc.position.y
+                            }
+                        }
+                    })
+                ) {
+                    moving = false
+                    break
+                }
+            }
             for (let i = 0; i < boundaries.length; i++) {
                 const boundary = boundaries[i]
                 if (
