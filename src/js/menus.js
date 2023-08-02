@@ -104,12 +104,12 @@ function animateMenuItems() {
     itemsPane.style.display = 'flex'
 
     // Handles specific item to hover over
-    if (keys.d.pressed) {
+    if (keys.s.pressed) {
 		
-        if (!keyFiredD) {
-            keyFiredD = true
-            keys.d.pressed = false
-            if (itemIndex < 4) {
+        if (!keyFiredS) {
+            keyFiredS = true
+            keys.s.pressed = false
+            if (itemIndex < 3) {
 				blip()
                 itemsPane.children[itemIndex].className = 'item'
                 itemIndex += 1
@@ -117,10 +117,10 @@ function animateMenuItems() {
             }
         }
     }
-    if (keys.a.pressed) {
-        if (!keyFiredA) {
-            keyFiredA = true
-            keys.a.pressed = false
+    if (keys.w.pressed) {
+        if (!keyFiredW) {
+            keyFiredW = true
+            keys.w.pressed = false
             if (itemIndex > 0) {
 				blip()
                 itemsPane.children[itemIndex].className = 'item'
@@ -169,9 +169,6 @@ function animateMenuItems() {
                         if (character.stats.mp > character.stats.maxMp) {
                             character.stats.mp = character.stats.maxMp
                         }
-                    }
-                    else if (itemIndex === 4) {
-                        alert('you cannot use this now')
                     }
                 }
         }

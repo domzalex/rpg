@@ -24,7 +24,7 @@ let character = {
         hp: 30,
         maxMp: 20,
         mp: 20,
-        exp: 0,
+        exp: 100,
         expToNext: 125,
         atk: 15,
         power: 15,
@@ -61,26 +61,25 @@ let character = {
     items: {
         potions: {
             potion: {
-                quantity: 5,
+                quantity: 0,
                 restore: 30
             },
             bigPotion: {
-                quantity: 5,
+                quantity: 0,
                 restore: 100
             },
             magicPotion: {
-                quantity: 5,
+                quantity: 0,
                 restore: 10
             },
             bigMagicPotion: {
-                quantity: 5,
+                quantity: 0,
                 restore: 30
             }
         }
     }
 
 }
-
 const enemies = {
     0: {
         name: 'Neutral Slime',
@@ -126,8 +125,9 @@ let offset = {
     x: -1500,
     y: -6200
 }
+// -1500, -6200, -3800
 canvas.width = 1280
-canvas.height = 800
+canvas.height = 720
 
 // Functions to create and read save files
 function createSaveFile() {

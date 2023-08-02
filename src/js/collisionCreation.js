@@ -45,12 +45,27 @@ let npc1 = new NPC({
 	frames: {
         max: 1
     },
-	type: 'information',
+	type: 'tutorial',
 	dialog: {
-		0: 'test',
-		1: 'how are you?'
+		0: `Greetings, traveller...`,
+		1: `It's not often I see someone else in this forest.`,
+        2: `I don't know what you're doing here...`,
+        3: `...but this is a dangerous place.`,
+        4: `There are monsters in the thick patches of grass.`,
+        5: `There isn't much I can do for you, but...`,
+        6: `Here are a few health potions... in case you need them.`,
+        7: `Anyway, I'll be here, where it's safe.`,
+        8: `Good luck.`
+	},
+    talkedTo: false
+})
+let npc1Col = new NPCDialogHitbox({
+    position: {
+		x: 1920 + offset.x - 10,
+		y: 6315 + offset.y - 10
 	}
 })
+
 let npc2 = new NPC({
 	position: {
 		x: 4000 + offset.x,
@@ -64,11 +79,35 @@ let npc2 = new NPC({
 	dialog: {
 		0: 'POOP',
 		1: 'I LOVE POOP?'
+	},
+    items: {
+        0: {
+            name: 'big potion',
+            cost: 100
+        },
+        1: {
+            name: 'big magic potion',
+            cost: 150
+        },
+        2: {
+            name: 'armor set',
+            cost: 500
+        },
+        3: {
+            name: 'big sword',
+            cost: 500
+        },
+    }
+})
+let npc2Col = new NPCDialogHitbox({
+    position: {
+		x: 4000 + offset.x - 10,
+		y: 4000 + offset.y - 10
 	}
 })
 
 const npcList = [npc1, npc2]
-
+const npcCol = [npc1Col, npc2Col]
 
 
 function checkCollisionChange() {

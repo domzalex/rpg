@@ -186,6 +186,7 @@ function endBattle() {
         battle.initiated = false
         if (character.stats.hp <= 0) {
             character.stats.hp = character.stats.maxHp
+            character.stats.mp = character.stats.maxMp
         }
     }
 }

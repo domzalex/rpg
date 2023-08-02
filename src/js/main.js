@@ -11,13 +11,12 @@ function animate() {
     //begins the main animation event
     const animationId = window.requestAnimationFrame(animate)
 
-
     //checks for current screen
     checkCollisionChange()
 
 
     //sets all movable objects that move on player directional input
-    movables = [background, ...boundaries, ...npcList, ...battleZones]
+    movables = [background, ...boundaries, ...npcList, ...npcCol, ...battleZones]
 
 
     //draws the character, all of the onscreen graphical elements, and the world boundaries/hitboxes/etc from 'bottom' to 'top'
@@ -32,8 +31,12 @@ function animate() {
     
 
 	npcList.forEach(npc => {
-		npc.draw()		
+		npc.draw()
 	})
+
+    npcCol.forEach(col => {
+        col.draw()
+    })
 
 	player.draw()
 
@@ -340,16 +343,16 @@ function animate() {
         //sets all the cost/amount owned per item selection (TEMPORARY)
         if (index == 0) {
             document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.items.potions.bigPotion.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${merchant.items[index].cost}`
+            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
         } else if (index == 1) {
             document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.items.potions.bigMagicPotion.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${merchant.items[index].cost}`
+            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
         } else if (index == 2) {
             document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.equipment.armor.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${merchant.items[index].cost}`
+            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
         } else if (index == 3) {
             document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.equipment.weapon.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${merchant.items[index].cost}`
+            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
         } else {
             document.querySelector('#shop-amount-owned').innerHTML = ``
             document.querySelector('#shop-money').innerHTML = `Money: $${character.money}`
@@ -410,33 +413,67 @@ function animate() {
 
 
     //handles merchant collision and dialog init
-    for (let i = 0; i < npcDialogHitboxes.length; i++) {
-        const dialogNPC = npcDialogHitboxes[i]
+    for (let i = 0; i < npcList.length; i++) {
+        const npc = npcList[i]
         if (keyFiredEnter &&
             rectangleCollision({
                 rectangle1: player,
                 rectangle2: {
-                    ...dialogNPC,
+                    ...npc,
                     position: {
-                        x: dialogNPC.position.x + 10,
-                        y: dialogNPC.position.y + 10
+                        x: npc.position.x + 10,
+                        y: npc.position.y + 10
                     }
                 }
             })
         ) { 
-            if (npcIterator == (Object.keys(merchant.dialog).length)) {
-                inDialog = true
-                document.querySelector('#npc-message').style.display = 'none'
-                document.querySelector('#merchant-options-one').style.display = 'flex'
-                keyFiredEnter = false
-                yesNo = true
-            } else {
-                inDialog = true
-                document.querySelector('#npc-message').style.display = 'flex'
-                document.querySelector('#npc-message').innerHTML = merchant.dialog[npcIterator]
-                keyFiredEnter = false
-                npcIterator++
+            if (npc.type === 'merchant') {
+                if (npcIterator == (Object.keys(npc.dialog).length)) {
+                    inDialog = true
+                    document.querySelector('#npc-message').style.display = 'none'
+                    document.querySelector('#merchant-options-one').style.display = 'flex'
+                    keyFiredEnter = false
+                    yesNo = true
+                } else {
+                    inDialog = true
+                    document.querySelector('#npc-message').style.display = 'flex'
+                    document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
+                    keyFiredEnter = false
+                    npcIterator++
+                }
+            } else if (npc.type === 'tutorial') {
+                if (!npc.talkedTo) {
+                    if (npcIterator == (Object.keys(npc.dialog).length)) {
+                        npc.talkedTo = true
+                        inDialog = false
+                        character.items.potions.potion.quantity += 3
+                        document.querySelector('#npc-message').style.display = 'none'
+                        keyFiredEnter = false
+                        npcIterator = 0
+                    } else {
+                        inDialog = true
+                        document.querySelector('#npc-message').style.display = 'flex'
+                        document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
+                        keyFiredEnter = false
+                        npcIterator++
+                    }
+                } else {
+                    if (npcIterator == (Object.keys(npc.dialog).length)) {
+                        inDialog = false
+                        document.querySelector('#npc-message').style.display = 'none'
+                        keyFiredEnter = false
+                        npcIterator = 0
+                    } else {
+                        inDialog = true
+                        npcIterator = Object.keys(npc.dialog).length - 1
+                        document.querySelector('#npc-message').style.display = 'flex'
+                        document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
+                        keyFiredEnter = false
+                        npcIterator++
+                    }
+                }
             }
+            
             
         }
     }

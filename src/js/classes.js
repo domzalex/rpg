@@ -95,7 +95,9 @@ class NPC {
 		image,
         frames = { max: 1 },
         dialog,
-		type
+		type,
+        items,
+        talkedTo
 	}) {
         this.position = position
 		this.image = image
@@ -107,6 +109,8 @@ class NPC {
         }
 		this.dialog = dialog
 		this.type = type
+        this.items = items
+        this.talkedTo = talkedTo
         this.width = 80
         this.height = 80
     }
@@ -136,7 +140,7 @@ class NPCDialogHitbox {
         this.height = 100
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0.2)'
+        ctx.fillStyle = 'rgba(255,0,0,0)'
         ctx.fillRect(this.position.x, this.position.y, (this.width), (this.height))
     }
 

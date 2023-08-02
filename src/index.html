@@ -19,9 +19,6 @@
 			text-transform: uppercase;
 			letter-spacing: 0px;
 		}
-		/* canvas {
-			transform: translateY(-50px);
-		} */
 		body {
 			background-color: black;
 			height: 100vh;
@@ -38,9 +35,13 @@
 			padding: 0.12em 0.27em;
 		}
 		.item {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
 			border: solid 5px rgba(0,0,0,0);
-			padding: 0.12em 0.27em;
-			height: 75px;
+			height: 100px;
+			padding: 0 1em;
 		}
 		.menu-hovered, .item-hovered {
 			border: solid 5px white;
@@ -96,26 +97,22 @@
 		
 		</div>
 	
-		<div id="all-items" style="background-color: black; position: absolute; top: 0px; left: 0; color: white; display: none; justify-content: space-evenly; width: 100%; height: 100%;">
+		<div id="all-items" style="background-color: black; position: absolute; top: 0px; left: 0; color: white; display: none; flex-direction: column; justify-content: flex-start; align-items: flex-start; width: 100%; height: 100%;">
 			<div id="potion" class="item item-hovered">
-				<h1>potion</h1>
-				<h2 style="text-align: center;"></h2>
+				<h1>Potion</h1>
+				<h1></h1>
 			</div>
 			<div id="big-potion" class="item">
-				<h1>big-potion</h1>
-				<h2 style="text-align: center;"></h2>
+				<h1>Potion +</h1>
+				<h1></h1>
 			</div>
 			<div id="magic-potion" class="item">
-				<h1>magic-potion</h1>
-				<h2 style="text-align: center;"></h2>
+				<h1>Magic Potion</h1>
+				<h1></h1>
 			</div>
 			<div id="big-magic-potion" class="item">
-				<h1>big-magic-potion</h1>
-				<h2 style="text-align: center;"></h2>
-			</div>
-			<div id="antidote" class="item">
-				<h1>antidote</h1>
-				<h2 style="text-align: center;"></h2>
+				<h1>Magic Potion +</h1>
+				<h1></h1>
 			</div>
 		</div>
 	
@@ -172,7 +169,7 @@
 			</div>
 	
 	
-			<div id="enemy-health" style="height: 15px; transition: 0.5s ease; background-color: #FF77A8; position: absolute; top: -240px; left: 361px;"></div>
+			<div id="enemy-health" style="height: 15px; transition: 0.5s ease; background-color: #FF77A8; position: absolute; top: -160px; left: 361px;"></div>
 	
 			
 		</div>
