@@ -356,51 +356,72 @@ function animate() {
         } else {
             document.querySelector('#shop-amount-owned').innerHTML = ``
             document.querySelector('#shop-money').innerHTML = `Money: $${character.money}`
+			document.querySelector('#shop-message').innerHTML = 'Leave shop'
         }
 
         //handles selection of items and purchase of items
         if (keyFiredW && index > 0) {
+			blip()
             index--
+			document.querySelector('#shop-message').style.color = 'white'
+			document.querySelector('#shop-message').innerHTML = `${npc2.items[index].effect}`
             shopOptions[index + 1].style.border = 'solid 5px transparent'
             keyFiredW = false
         } else if (keyFiredS && index < shopOptions.length - 1) {
+			blip()
             index++
+			document.querySelector('#shop-message').style.color = 'white'
+			document.querySelector('#shop-message').innerHTML = `${npc2.items[index].effect}`
             shopOptions[index - 1].style.border = 'solid 5px transparent'
             keyFiredS = false
         }
         if (keyFiredEnter && index == 0) {
-            if (character.money >= merchant.items[index].cost) {
-                character.money -= merchant.items[index].cost
+			select()
+			keyFiredEnter = false
+            if (character.money >= npc2.items[index].cost) {
+                character.money -= npc2.items[index].cost
                 character.items.potions.bigPotion.quantity++
             } else {
-                alert('not enough money')
+				document.querySelector('#shop-message').style.color = '#B7522E'
+				document.querySelector('#shop-message').innerHTML = `Not enough money!`
             }
         }
         else if (keyFiredEnter && index == 1) {
-            if (character.money >= merchant.items[index].cost) {
-                character.money -= merchant.items[index].cost
+			select()
+			keyFiredEnter = false
+            if (character.money >= npc2.items[index].cost) {
+                character.money -= npc2.items[index].cost
                 character.items.potions.bigMagicPotion.quantity++
             } else {
-                alert('not enough money')
+				document.querySelector('#shop-message').style.color = '#B7522E'
+				document.querySelector('#shop-message').innerHTML = `Not enough money!`
             }
         }
         else if (keyFiredEnter && index == 2) {
-            if (character.money >= merchant.items[index].cost) {
-                character.money -= merchant.items[index].cost
+			select()
+			keyFiredEnter = false
+            if (character.money >= npc2.items[index].cost) {
+                character.money -= npc2.items[index].cost
                 character.items.equipment.armor.defense = 0.5
             } else {
-                alert('not enough money')
+                document.querySelector('#shop-message').style.color = '#B7522E'
+				document.querySelector('#shop-message').innerHTML = `Not enough money!`
             }
         }
         else if (keyFiredEnter && index == 3) {
-            if (character.money >= merchant.items[index].cost) {
-                character.money -= merchant.items[index].cost
+			select()
+			keyFiredEnter = false
+            if (character.money >= npc2.items[index].cost) {
+                character.money -= npc2.items[index].cost
                 character.items.equipment.weapon.attack = 1.5
             } else {
-                alert('not enough money')
+                document.querySelector('#shop-message').style.color = '#B7522E'
+				document.querySelector('#shop-message').innerHTML = `Not enough money!`
             }
         }
         else if (keyFiredEnter && index == shopOptions.length - 1) {
+			select()
+			keyFiredEnter = false
             shopOptions[index].style.border = 'solid 5px transparent'
             index = 0
             shopMenuOpen = false
@@ -426,7 +447,7 @@ function animate() {
                     }
                 }
             })
-        ) { 
+        ) { blip()
             if (npc.type === 'merchant') {
                 if (npcIterator == (Object.keys(npc.dialog).length)) {
                     inDialog = true

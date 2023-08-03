@@ -14,7 +14,7 @@ function createCollisions(setCollisionMap) {
         for (let i = 0; i < setCollisionMap.length; i+= 100) {
             collisionsMap.push(setCollisionMap.slice(i, 100 + i))
         }
-        createBoundaries()
+        // createBoundaries()
     }
 }
 for (let i = 0; i < battleZonesData.length; i+= 100) {
@@ -77,26 +77,34 @@ let npc2 = new NPC({
     },
 	type: 'merchant',
 	dialog: {
-		0: 'POOP',
-		1: 'I LOVE POOP?'
+		0: 'Hello, traveller.',
+		1: 'Should you have the funds, I have the goods...',
+		2: `Care to take a look?`
 	},
     items: {
         0: {
             name: 'big potion',
+			effect: `Restores 100HP`,
             cost: 100
         },
         1: {
             name: 'big magic potion',
+			effect: `Restores 50MP`,
             cost: 150
         },
         2: {
             name: 'armor set',
+			effect: `Increases defense by 50%`,
             cost: 500
         },
         3: {
             name: 'big sword',
+			effect: `Increases non-magic attack by 50%`,
             cost: 500
         },
+		4: {
+			effect: 'leave shop'
+		}
     }
 })
 let npc2Col = new NPCDialogHitbox({

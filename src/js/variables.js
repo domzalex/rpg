@@ -70,11 +70,11 @@ let character = {
             },
             magicPotion: {
                 quantity: 0,
-                restore: 10
+                restore: 20
             },
             bigMagicPotion: {
                 quantity: 0,
-                restore: 30
+                restore: 50
             }
         }
     }
@@ -122,8 +122,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -1500,
-    y: -6200
+    x: -3800,
+    y: -3800
 }
 // -1500, -6200, -3800
 canvas.width = 1280
