@@ -2,7 +2,7 @@
 window.addEventListener('keypress', (e) => {
     switch (e.key.toLowerCase()) {
         case 'e' :
-            if (menuOpen == false && !battle.initiated) {
+            if (menuOpen == false && !battle.initiated && !shopMenuOpen && !inDialog) {
                 menuOpen = true
             } else if (menuOpen == true && !itemOpen) {
                 menuOpen = false

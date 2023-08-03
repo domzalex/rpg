@@ -167,7 +167,6 @@ function endBattle() {
         winScreen()
         speedCheck = false
         battleEnd = false
-        battle.initiated = false
     } else {
         battleMenu.style.display = 'none'
         battleMenuPane.style.display = 'none'

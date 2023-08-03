@@ -122,8 +122,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -3800,
-    y: -3800
+    x: -3600,
+    y: -3700
 }
 // -1500, -6200, -3800
 canvas.width = 1280

@@ -25,13 +25,12 @@ function animateMenu() {
     // menu.draw()
     populateStats()
     document.querySelector('#menu').style.display = 'flex'
-    document.querySelector('#player-stats').style.display = 'flex'
 
-    if (keys.w.pressed) {
+    if (keys.a.pressed) {
 
-        if (!keyFiredW) {
-            keyFiredW = true
-            keys.w.pressed = false
+        if (!keyFiredA) {
+            keyFireda = true
+            keys.a.pressed = false
             if (menuIndex > 0) {
 				blip()
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
@@ -40,11 +39,11 @@ function animateMenu() {
             }
         }
     }
-    if (keys.s.pressed) {
+    if (keys.d.pressed) {
 		
-        if (!keyFiredS) {
-            keyFiredS = true
-            keys.s.pressed = false
+        if (!keyFiredD) {
+            keyFiredD = true
+            keys.d.pressed = false
             if (menuIndex < 2) {
 				blip()
                 document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
@@ -82,7 +81,6 @@ function animateMenu() {
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         window.cancelAnimationFrame(menuAnimationId)
         document.querySelector('#menu').style.display = 'none'
-        document.querySelector('#player-stats').style.display = 'none'
         animate()
     }
 }
