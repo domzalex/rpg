@@ -56,8 +56,8 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 800,
-        "resizable": false,
+        "height": 720,
+        "resizable": true,
         "title": "rpg",
         "width": 1280
       }

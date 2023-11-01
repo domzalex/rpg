@@ -3,8 +3,10 @@ class Sprite {
         position,
         velocity,
         image,
+        facing,
         frames = { max: 1 },
         sprites,
+        idleSprites,
         maxHp,
         health,
         atk,
@@ -15,6 +17,7 @@ class Sprite {
     }) {
         this.position = position
         this.image = image
+        this.facing = facing
         this.frames = {...frames, val: 0, elapsed: 0}
 
         this.image.onload = () => {
@@ -23,6 +26,7 @@ class Sprite {
         }
         this.moving = false
         this.sprites = sprites
+        this.idleSprites = idleSprites
         this.maxHp = maxHp
         this.health = health
         this.atk = atk
@@ -44,16 +48,16 @@ class Sprite {
             this.image.height
         )
         
-        if (!this.moving) {
-            this.frames.val = 0
-            return
-        }
+        // if (!this.moving) {
+        //     this.sprites = this.idleSprites
+        //     return
+        // }
 
         if (this.frames.max > 1) {
             this.frames.elapsed++
         }
 
-        if (this.frames.elapsed % 10 === 0) {
+        if (this.frames.elapsed % 6 === 0) {
             if (this.frames.val < this.frames.max - 1) this.frames.val++
             else this.frames.val = 0
         }
@@ -65,8 +69,8 @@ class Boundary {
     static height = 80
     constructor({position}) {
         this.position = position
-        this.width = 80
-        this.height = 80
+        this.width = 40
+        this.height = 5
     }
     draw() {
         ctx.fillStyle = 'rgba(255,0,0,0)'

@@ -19,6 +19,9 @@
 			text-transform: uppercase;
 			letter-spacing: 0px;
 		}
+		canvas {
+			overflow: hidden;
+		}
 		body {
 			background-color: #000;
 			height: 100vh;
@@ -29,10 +32,11 @@
 			/* font-family:Verdana, Geneva, Tahoma, sans-serif; */
 		}
 		.menu-button {
-			border: solid 5px rgba(0,0,0,0);
+			border: none;
 			background: none;
 			text-align: left;
-			padding: 0.12em 0.45em;
+			padding: 0.12em 0.68em;
+			margin: 0.4em 0em;
 		}
 		.item {
 			display: flex;
@@ -42,20 +46,49 @@
 			border: solid 5px rgba(0,0,0,0);
 			height: 100px;
 			padding: 0 1em;
+			font-size: 1em;
 		}
 		.menu-hovered, .item-hovered {
-			border: solid 5px white;
+			position: relative;
+		}
+		.menu-hovered::before {
+			content: '';
+			width: 25px;
+			height: 25px;
+			background-image: url('img/arrow.png');
+			position: absolute;
+			top: 11px;
+			left: -27px;
+			animation-name: menu_item;
+			animation-duration: 0.5s;
+			animation-iteration-count: infinite;
+			animation-timing-function: ease-in-out;
+		}
+		@keyframes menu_item {
+
+			0% {
+				transform: translateX(0)
+			}
+			50% {
+				transform: translateX(5px)
+			}
+			100% {
+				transform: translateX(0)
+			}
+
 		}
 		.battle-menu-item {
 			border: solid 5px transparent;
-			width: 25%;
-			height: 175px;
+			width: 20%;
+			height: 130px;
 			color: white;
 			display: flex;
 			text-align: center;
 			justify-content: center;
 			align-items: center;
 			margin: 0 6.5px;
+			font-size: 1.5em;
+			box-shadow: 10px 10px rgba(0,0,0,1);
 		}
 		.battle-menu-hovered {
 			border: solid 5px white;
@@ -81,57 +114,81 @@
 			height: 100%;
 			color: white;
 		}
+		#win-screen::before {
+			content: '';
+			position: absolute;
+			top: -790px;
+			left: -510px;
+			width: 2300px;
+			height: 2300px;
+			background-image: url('img/winscreen_bg.png');
+			background-size: cover;
+			background-position: center;
+			animation-name: winscreen_rotate;
+			animation-duration: 10s;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+		}
+		@keyframes winscreen_rotate {
+
+			0% {
+				transform: rotate(0deg)
+			}
+			100% {
+				transform: rotate(360deg)
+			}
+
+		}
 	</style>
 	
-	<div style="position: relative; display: inline-block;">
+	<div style="position: relative; display: inline-block; overflow: hidden;">
 		<canvas></canvas>
 	
-		<div id="menu" style="background-image: url('./img/menu-bg.png'); display: none; flex-direction: column; align-items: flex-start; width: 100%; height: 720px; position: absolute; top: 0; left: 0;">
+		<div id="menu" style="background-image: url('./img/menu-bg-vibrant.png'); display: none; flex-direction: column; align-items: flex-start; width: 100%; height: 720px; position: absolute; top: 0; left: 0;">
 		
 			<h1 style="color: white; font-size: 5.25em; margin-left: 0.25em; margin-bottom: 1px;">Menu</h1>
 
-			<div id="menu-buttons" style="display: flex; justify-content: flex-start; height: auto; width: 100%;">
-				<button id="menu-items" class="menu-button menu-hovered" style="font-size: 2.3em; color: white;">Items</button>
-				<button id="menu-equip" class="menu-button" style="font-size: 2.3em; color: white;">Equip</button>
-				<button id="menu-save" class="menu-button" style="font-size: 2.3em; color: white;">Save</button>
-				<h1 id="save-alert" style="color: white; font-size: 2.3em; opacity: 0; line-height: 65px; margin-left: auto; margin-right: auto;">Game saved!</h1>
+			<div id="menu-buttons" style="position: absolute; margin-top: 170px; margin-left: 3em; display: flex; flex-direction: column; justify-content: flex-start;  height: auto;">
+				<button id="menu-items" class="menu-button menu-hovered" style="font-size: 2em; color: white;">Items</button>
+				<button id="menu-equip" class="menu-button" style="font-size: 2em; color: white;">Status</button>
+				<button id="menu-save" class="menu-button" style="font-size: 2em; color: white;">Save</button>
+				<h1 id="save-alert" style="color: rgb(88, 193, 61); font-size: 2em; opacity: 0; line-height: 65px; margin-left: 22px;">Game saved!</h1>
 			</div>
 
-			<div id="all-items" style="position: absolute; top: 0px; left: 0; color: white; display: none; flex-direction: column; justify-content: flex-start; align-items: flex-start; width: 100%; height: 720px;">
-				<div id="potion" class="item item-hovered">
-					<h1>Potion</h1>
-					<h1></h1>
-				</div>
-				<div id="big-potion" class="item">
-					<h1>Potion +</h1>
-					<h1></h1>
-				</div>
-				<div id="magic-potion" class="item">
-					<h1>Magic Potion</h1>
-					<h1></h1>
-				</div>
-				<div id="big-magic-potion" class="item">
-					<h1>Magic Potion +</h1>
-					<h1></h1>
-				</div>
+			<div id="all-items" style="position: absolute; margin-top: 170px; margin-left: 3em; display: none; flex-direction: column; justify-content: flex-start;  height: auto;">
+				<button id="potion" class="menu-button menu-hovered" style="font-size: 2em; color: white;">Potion</button>
+				<button id="big-potion" class="menu-button" style="font-size: 2em; color: white;">Potion +</button>
+				<button id="magic-potion" class="menu-button" style="font-size: 2em; color: white;">Magic Potion</button>
+				<button id="big-magic-potion" class="menu-button" style="font-size: 2em; color: white;">Magic Potion +</button>
 			</div>
 
-			<div id="player-stats" style="padding-bottom: 30px; color: white; width: 100%; display: flex; justify-content: space-evenly; position: absolute; bottom: 0; left: 0;">
-				<div>
-					<h1 id="player-level"></h1>
-					<h1 id="player-exp"></h1>
-					<h1 id="player-health"></h1>
-					<h1 id="player-magic"></h1>
-					<h1 id="player-money"></h1>
+			<div id="player-stats" style="font-size: 1em; color: white; width: 100%; display: none; flex-direction: column; position: absolute; top: 102px; left: 0;">
+				<div style="display: flex; justify-content: space-between;">
+					<div style="display: flex">
+						<h1 id="player-name" class="menu-button">Name: Alex</h1>
+						<h1 id="player-level" class="menu-button" style="font-size: 2em; color: white;"></h1>
+					</div>
+					<h1 id="player-money" class="menu-button" style="font-size: 2em; color: white;"></h1>
+				</div>
+				<h1 id="stats-header" class="menu-button" style="color: rgb(88, 193, 61); margin-top: 0.3em; margin-bottom: 0em;">Stats</h1>
+				<div style="display: flex;">
+					<div>
+						<h1 id="player-exp" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-exp-next" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-health" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-magic" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-atk" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-def" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-spd" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+						<h1 id="player-power" class="menu-button" style="font-size: 1.3em; color: white; margin-left: 0.42em;"></h1>
+					</div>
 				</div>
 				
-				<div>
-					<h1 id="player-exp-next"></h1>
-					<h1 id="player-atk"></h1>
-					<h1 id="player-def"></h1>
-					<h1 id="player-spd"></h1>
-					<h1 id="player-power"></h1>
-				</div>
+			</div>
+
+			<div id="objective-message" style="color: white; padding: 0 21px; display: inline-block; position: absolute; bottom: 0; left: 0; width: 100%;">
+				<h1 style="margin: 18px 0; color: rgb(88, 193, 61);">Current Objective:</h1>
+				<h2 style="margin: 18px 0;">Find out more about what's happening here.</h2>
 			</div>
 		
 		</div>
@@ -140,25 +197,25 @@
 	
 		
 	
-		<div id="battle-pane" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; background-color: #181718;">
+		<div id="battle-pane" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; background-image: url('./img/dialogBg.png');">
 			<div id="battle-menu" style="display: flex; align-items: center; justify-content: space-evenly; position: absolute; bottom: 0; left: 0; width: 69%; height: 100%;">
-				<h1 class="battle-menu-item" style="background-image: url('./img/basicAttackIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Attack</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/magicAttackIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Magic</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/itemIcon.png');  -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill;background-position: center;">Item</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/runIcon.png');  -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill;background-position: center;">Run</h1>
+				<h1 class="battle-menu-item" style="background-image: url('./img/basicAttackIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Attack</h1>
+				<h1 class="battle-menu-item" style="background-image: url('./img/magicAttackIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Magic</h1>
+				<h1 class="battle-menu-item" style="background-image: url('./img/itemIcon.png');  -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill;background-position: center; background-size: cover;">Item</h1>
+				<h1 class="battle-menu-item" style="background-image: url('./img/runIcon.png');  -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill;background-position: center; background-size: cover;">Run</h1>
 			</div>
 	
-			<div id="magic-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 69%; height: 200px; background-color: #181718;">
-				<h1 id="fire-magic" class="battle-menu-item battle-magic" style="width: 32%; background-image: url('./img/fireMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Fire</h1>
-				<h1 id="lightning-magic" class="battle-menu-item battle-magic" style="width: 32%; background-image: url('./img/lightningMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Lightning</h1>
-				<h1 id="wind-magic" class="battle-menu-item battle-magic" style="width: 32%; background-image: url('./img/windMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Wind</h1>
+			<div id="magic-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 69%; height: 200px;">
+				<h1 id="fire-magic" class="battle-menu-item battle-magic" style="width: 25%; background-image: url('./img/fireMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Fire</h1>
+				<h1 id="lightning-magic" class="battle-menu-item battle-magic" style="width: 25%; background-image: url('./img/lightningMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Lightning</h1>
+				<h1 id="wind-magic" class="battle-menu-item battle-magic" style="width: 25%; background-image: url('./img/windMagicIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Wind</h1>
 			</div>
 	
-			<div id="battle-item-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 69%; height: 200px; background-color: #181718;">
-				<h1 class="battle-menu-item" style="background-image: url('./img/healthPotionIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Health Potion</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/healthPotionPlusIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Health Potion+</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/magicPotionIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Magic Potion</h1>
-				<h1 class="battle-menu-item" style="background-image: url('./img/magicPotionPlusIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center;">Magic Potion+</h1>
+			<div id="battle-item-menu" style="display: none; justify-content: space-evenly; align-items: center; position: absolute; bottom: 0; left: 0; width: 69%; height: 200px;">
+				<h1 class="battle-menu-item potion" style="background-image: url('./img/healthPotionIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Health Potion<br>0</h1>
+				<h1 class="battle-menu-item potion" style="background-image: url('./img/healthPotionPlusIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Health Potion+<br>2</h1>
+				<h1 class="battle-menu-item potion" style="background-image: url('./img/magicPotionIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Magic Potion<br>100</h1>
+				<h1 class="battle-menu-item potion" style="background-image: url('./img/magicPotionPlusIcon.png'); -webkit-text-stroke: 5px rgb(35,35,35); paint-order: stroke fill; background-position: center; background-size: cover;">Magic Potion+<br>40</h1>
 			</div>
 	
 			<div id="player-stats-battle" class="battle-menu-item battle-menu-hovered" style="font-size: 1em; position: absolute; top: 12.5px; right: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; width: 30%; height: 175px; padding: 1em;">
@@ -170,7 +227,7 @@
 				</div>
 			</div>
 	
-			<div id="battle-dialog" style="padding: 1em;font-size: 2em; width: 69%; height: 100%; display: none; justify-content: flex-start; align-items: center; text-align: center; background-color:#181718">
+			<div id="battle-dialog" style="padding: 1em;font-size: 2em; width: 69%; height: 100%; display: none; justify-content: center; align-items: center; text-align: center;">
 				<!-- <h1 id="battle-message" style="font-size: 2em;"></h1> -->
 			</div>
 	
@@ -180,44 +237,68 @@
 			
 		</div>
 	
-		<div id="win-screen" style="background-color: #181718; color: white; display: none; justify-content: space-evenly; position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
-			<h1 style="transform: translateY(50px)">You won!</h1>
-			<h1 style="transform: translateY(50px)" id="exp-gain"></h1>
-			<h1 style="transform: translateY(50px)" id="money-gain"></h1>
-			<div id="level-up-modal" style="background-color: #181718; color: white; font-size: 2em; display: none; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; text-align: center; height: 100%; width: 100%;"><h1 style="width: 50%;">Congratulations! You gained a new level!</h1></div>
+		<div id="win-screen" style="color: white; display: none; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
+			
+			<div id="win-gains" style="padding: 1em; width: 80%; height: 80%; display: flex; flex-direction: column; justify-content: space-between; background-color: #3C4674; border: solid 10px rgb(239, 234, 104); z-index: 10;">
+				<h1 style="text-align: center;">You won!</h1>
+				<div style="height: 40%; display: flex; flex-direction: column; justify-content: space-between;">
+					<h1 id="exp-gain"></h1>
+					<h1 id="money-gain"></h1>
+					<h1 id="item-drop"></h1>
+				</div>
+			</div>
+			
+			<div id="level-up-modal" style="padding: 1em; width: 80%; height: 80%; display: none; justify-content: center; align-items: center; background-color: #3C4674; border: solid 10px rgb(239, 234, 104); z-index: 10;"><h1 style="width: 50%; text-align: center;">Congratulations! You gained a new level!</h1></div>
+		
 		</div>
+
 		<div id="lose-screen" style="background-color: #181718; color: white; display: none; justify-content: space-evenly; position: absolute; top: 0; left: 0; height: 100%; width: 100%;">
 			<h1 style="transform: translateY(50px)">You lose :(</h1>
 		</div>
+
+		<h1 id="menu-dialog" style="width: 100%; display: none; color: white; line-height: 65px; padding: 0 20px; justify-content: flex-end; position: absolute; top: 105px; z-index: 10;"></h1>
 	
-		<div id="npc-dialog">
-			<h1 id="npc-message" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: center; align-items: center; background-color:#181718"></h1>
-			<div id="merchant-options-one" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: center; align-items: center; background-color:#181718">
+		<div id="npc-dialog" style="display: none;">
+			<div id="npc-message-container" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: space-between; align-items: center; background-image: url('./img/dialogBg.png');">
+				<div style="width: 200px; height: 200px; display: flex; flex-direction: column;">
+					<div id="npcDialogIcon" style="width: 200px; height: 200px; background-size: cover;"></div>
+				</div>
+				<h1 id="npc-message" style="width: 1080px; text-align: left; padding: 0 2em;"></h1>
+			</div>
+			<div id="merchant-options-one" style="width: 100%; height: 200px; position: absolute; bottom: 0; left: 0; display: none; justify-content: center; align-items: center; background-image: url('./img/dialogBg.png');">
 				<h1 id="yes" style="width: 150px; margin: 1em; padding: 0.5em 1em; text-align: center;">Yes</h1>
 				<h1 id="no" style="width: 150px; margin: 1em; padding: 0.5em 1em; text-align: center;">No</h1>
 			</div>
-			<div id="merchant-options-two" style="width: 100%; height: 100%; position: absolute; bottom: 0; left: 0; display: none; justify-content: space-between; background-color:#181718">
-				<div style="display: flex; flex-direction: column; justify-content: space-evenly;">
-					<h1 class="shop-item" id="big-potion" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Big Potion</h1>
-					<h1 class="shop-item" id="big-magic-potion" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Big Magic Potion</h1>
-					<h1 class="shop-item" id="armor-set" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Armor Set</h1>
-					<h1 class="shop-item" id="big-sword" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Bigger Sword</h1>
-					<h1 class="shop-item" id="exit-menu" style="width: auto; padding: 0.5em 1em; text-align: left; border: solid 5px transparent;">Exit</h1>
+			<div id="merchant-options-two" style="background-image: url('img/menu-bg-vibrant.png'); width: 100%; height: 100%; position: absolute; bottom: 0; left: 0; display: none; flex-direction: column;">
+				<h1 style="color: white; font-size: 5.25em; margin-left: 0.25em; margin-bottom: 1px;">Shop</h1>
+				<div style="position: absolute; margin-top: 170px; margin-left: 3em; display: flex; flex-direction: column; justify-content: flex-start;  height: auto;">
+					<h1 class="shop-item menu-button menu-hovered" id="big-potion" style="font-size: 2em; color: white;">Big Potion</h1>
+					<h1 class="shop-item menu-button" id="big-magic-potion" style="font-size: 2em; color: white;">Big Magic Potion</h1>
+					<h1 class="shop-item menu-button" id="armor-set" style="font-size: 2em; color: white;">Armor Set</h1>
+					<h1 class="shop-item menu-button" id="big-sword" style="font-size: 2em; color: white;">Bigger Sword</h1>
+					<h1 class="shop-item menu-button" id="exit-menu" style="font-size: 2em; color: white;">Exit</h1>
 				</div>
-				<div id="shop-player-info" style="font-size: 2em; display: flex; flex-direction: column; align-items: flex-end; height: 100%; width: 30%;">
-					<div id="shop-money" style="text-align: center; padding: 1em; border: solid 5px white; border-bottom: solid 3px white; height: 33%; width: 100%">
+				<div id="shop-money" style="font-size: 2em; position: absolute; top: 120px; right: 0px; text-align: right; width: 33%;">
+	
+				</div>
+				<div id="shop-player-info" style="position: absolute; bottom: 0; left: 0; font-size: 2em; display: flex; width: 100%; padding: 18px 21px;">
+					<div id="shop-cost" style="text-align: left; width: 22%;">
 	
 					</div>
-					<div id="shop-amount-owned" style="text-align: center; padding: 1em; border: solid 5px white; border-bottom: solid 2px white; border-top: solid 2px white; height: 33%; width: 100%">
+					<div id="shop-amount-owned" style="text-align: left; width: 22%;">
 	
 					</div>
-					<div id="shop-message" style="text-align: center; padding: 1em; border: solid 5px white; border-top: solid 3px white; height: 33%; width: 100%">
+					<div id="shop-message" style="text-align: left; width: 56%; color:rgb(88, 193, 61);">
 						Restores 100HP
 					</div>
 				</div>
 			</div>
 	
 		</div>
+
+
+		<div id="battle-transition" style="display: inline-block; position: absolute; top: -20px; left: -1280px; width: 1280px; height: 800px; background-color: black; transition: 1s ease;"></div>
+
 	
 	</div>
 	

@@ -9,8 +9,9 @@ function chooseEnemy() {
     enemy.atk = chosenEnemy.atk
     enemy.def = chosenEnemy.def
     enemy.spd = chosenEnemy.spd
-    enemy.money = chosenEnemy.money
+    enemy.money = Math.floor(Math.random() * (30 - 4 + 1) + 4)
     enemy.weakness = chosenEnemy.weakness
+    enemy.drop = chosenEnemy.drop
 
     document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
 }
@@ -87,22 +88,30 @@ function damageCalc(magicType) {
 }
 
 function moveEnemy(sprite) {
-	sprite.position.x += 15
-	setTimeout(() => {
-		sprite.position.x -= 30
-		setTimeout(() => {
-			sprite.position.x += 30
-			setTimeout(() => {
-				sprite.position.x -= 30
-				setTimeout(() => {
-					sprite.position.x += 30
-					setTimeout(() => {
-						sprite.position.x -= 15
-					}, 100)
-				}, 100)
-			}, 100)
-		}, 100)
-	}, 100)
+
+    sprite.position.x += 15
+    setTimeout(() => {
+        sprite.position.x -= 30
+        setTimeout(() => {
+            sprite.position.x += 30
+            setTimeout(() => {
+                sprite.position.x -= 30
+                setTimeout(() => {
+                    sprite.position.x += 30
+                    setTimeout(() => {
+                        sprite.position.x -= 15
+                    }, 100)
+                }, 100)
+            }, 100)
+        }, 100)
+    }, 100)
+
+    if (enemy.health <= 0) {
+        setTimeout(() => {
+            fleeing = 'enemyTrue'
+        }, 850)
+    }
+	
 }
 
 function playerAttack(magicType) {
@@ -141,6 +150,8 @@ function playerAttack(magicType) {
             battleWon = true
             // attacking = false
             endBattle()
+            fleeing = ''
+            enemy.position.x = 355
         } else {
 			attacking = false
 			characterTurn = false
@@ -164,6 +175,17 @@ function endBattle() {
         battleMenuIndex = 0
         battleMenu.children[battleMenuIndex].className = 'battle-menu-item battle-menu-hovered'
         window.cancelAnimationFrame(battleAnimationId)
+        winScreenState = 'rewards'
+        if (Math.random() <= 0.15) {
+            document.querySelector('#item-drop').innerHTML = `The ${enemy.name} dropped a ${enemy.drop}`
+            if (enemy.drop == 'potion') {
+                character.items.potions.potion.quantity += 1
+            } else if (enemy.drop == 'magicPotion') {
+                character.items.potions.magicPotion.quantity += 1
+            }
+        } else {
+            document.querySelector('#item-drop').innerHTML = ''
+        }
         winScreen()
         speedCheck = false
         battleEnd = false
@@ -243,9 +265,9 @@ function enemyAttack() {
 }
 
 function checkLevelUp() {
-    levelChecked = true
     if (character.stats.exp >= character.stats.expToNext) {
         document.querySelector('#level-up-modal').style.display = 'flex'
+        document.querySelector('#win-gains').style.display = "none"
         character.stats.lvl++
         character.stats.maxHp = Math.round(character.stats.maxHp * 1.1)
         character.stats.maxMp = Math.round(character.stats.maxMp * 1.1)
@@ -261,11 +283,9 @@ function checkLevelUp() {
             checkLevelUp()
         }
     } else {
-        document.querySelector('#level-up-modal').style.display = 'none'
-        document.querySelector('#win-screen').style.display = "none"
-        window.cancelAnimationFrame(winScreenAnimationId)
-        animate()
+        winScreenState = 'exit'
     }
+    levelChecked = true
 }
 
 function startBattle() {
@@ -292,11 +312,6 @@ function startBattle() {
 
     allowBattleMenuNav = true
 
-    keyFiredW = false
-    keyFiredA = false
-    keyFiredS = false
-    keyFiredD = false
-
     battleAnimationId = window.requestAnimationFrame(startBattle)
     battleBackground.draw()
     
@@ -306,7 +321,16 @@ function startBattle() {
     enemy.moving = true
     battlePlayer.moving = true
 
+    if (fleeing === 'playerTrue') {
+        battlePlayer.position.x += 8
+    }
+    if (fleeing === 'enemyTrue') {
+        enemy.position.x -= 8
+    }
+
     battleMenuPane.style.display = 'flex'
+
+    gamepadCheck()
 
     document.querySelector('#player-battle-health').innerHTML = `HP: ${character.stats.hp}`
     document.querySelector('#player-battle-magic').innerHTML = `MP: ${character.stats.mp}`
@@ -327,30 +351,25 @@ function startBattle() {
 
     if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-        if (keys.d.pressed && !attacking && !keyCheck) {
 			
-            if (!keyFiredD) {
-                keyFiredD = true
-                keys.d.pressed = false
-                if (battleMenuIndex < 3) {
-					blip()
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                    battleMenuIndex += 1
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-                }
+        if (keyFiredD && keyActive === 'd' && !attacking && !keyCheck) {
+            keyFiredD = false
+            if (battleMenuIndex < 3) {
+                blip()
+                battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
+                battleMenuIndex += 1
+                battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
             }
         }
-        if (keys.a.pressed && !attacking && !keyCheck) {
-			
-            if (!keyFiredA) {
-                keyFiredA = true
-                keys.a.pressed = false
-                if (battleMenuIndex > 0) {
-					blip()
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                    battleMenuIndex -= 1
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-                }
+
+        
+        if (keyFiredA && keyActive === 'a' && !attacking && !keyCheck) {
+            keyFiredA = false
+            if (battleMenuIndex > 0) {
+                blip()
+                battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
+                battleMenuIndex -= 1
+                battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
             }
         }
     }
@@ -359,34 +378,29 @@ function startBattle() {
 
 		checkMagicReq()
 
+        document.querySelector('#battle-menu').style.display = 'none'
+        document.querySelector('#battle-item-menu').style.display = 'none'
 		document.querySelector('#magic-menu').style.display = 'flex'
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
 		document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
-        
-        if (keys.d.pressed && !attacking) {
 			
-            if (!keyFiredD) {
-                keyFiredD = true
-                keys.d.pressed = false
-                if (magicMenuIndex < 2) {
-					blip()
-                    document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                    magicMenuIndex += 1
-                    document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-                }
+        if (keyFiredD && keyActive === 'd') {
+            keyFiredD = false
+            if (magicMenuIndex < 2) {
+                blip()
+                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+                magicMenuIndex += 1
+                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
             }
         }
-        if (keys.a.pressed && !attacking) {
 			
-            if (!keyFiredA) {
-                keyFiredA = true
-                keys.a.pressed = false
-                if (magicMenuIndex > 0) {
-					blip()
-                    document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                    magicMenuIndex -= 1
-                    document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-                }
+        if (keyFiredA && keyActive === 'a') {
+            keyFiredA = false
+            if (magicMenuIndex > 0) {
+                blip()
+                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+                magicMenuIndex -= 1
+                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
             }
         }
         if (keyFiredEnter && !attacking) {
@@ -451,14 +465,32 @@ function startBattle() {
                     battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
                     characterTurn = false
                     enemyTurn = false
-                    endBattle()
+                    inDialog = false
+                    document.querySelector('#battle-menu').style.display = 'none'
+                    battleMessage.innerHTML = 'Managed to escape!'
+                    battleMessage.style.display = 'flex'
+                    battlePlayer.image = playerRight
+                    fleeing = 'playerTrue'
+                    setTimeout(() => {
+                        endBattle()
+                        battleMessage.style.display = 'none'
+                        fleeing = ''
+                        battlePlayer.position.x = 850
+                    }, 1500)
                 } else {
-                    alert('failed to flee!')
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                    battleMenuIndex = 0
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-                    characterTurn = false
-                    enemyTurn = true
+                    battleMessage.innerHTML = 'Failed to escape!'
+                    battleMessage.style.display = 'flex'
+                    attacking = true
+                    setTimeout(() => {
+                        battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
+                        battleMenuIndex = 0
+                        battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+                        battleMessage.style.display = 'none'
+                        attacking = false
+                        characterTurn = false
+                        enemyTurn = true
+                        enemyAttack()
+                    }, 1500)
                 }
             }
             setTimeout(() => {
@@ -478,31 +510,43 @@ function startBattle() {
 
     //opens item menu in battle
     if (battleItemMenuOpen) {
+
+        document.querySelector('#battle-menu').style.display = 'none'
         document.querySelector('#battle-item-menu').style.display = 'flex'
+		document.querySelector('#magic-menu').style.display = 'none'
+
         document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
 
-        if (keys.d.pressed) {
-            if (!keyFiredD && !keyCheck) {
-                keyFiredD = true
-                keys.d.pressed = false
-                if (battleItemIndex < 3) {
-					blip()
-                    document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-                    battleItemIndex += 1
-                    document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
-                }
+        document.querySelectorAll('.potion')[0].innerHTML = `Health Potion<br>${character.items.potions.potion.quantity}`
+        document.querySelectorAll('.potion')[1].innerHTML = `Health Potion +<br>${character.items.potions.bigPotion.quantity}`
+        document.querySelectorAll('.potion')[2].innerHTML = `Magic Potion<br>${character.items.potions.magicPotion.quantity}`
+        document.querySelectorAll('.potion')[3].innerHTML = `Magic Potion +<br>${character.items.potions.bigMagicPotion.quantity}`
+
+        let i = 0
+
+        document.querySelectorAll('.potion').forEach((item) => {
+            if (Object.values(character.items.potions)[i].quantity == 0) {
+                item.style.opacity = 0.5
+            }
+            i++
+        })
+
+        if (keyFiredD && !keyCheck && keyActive === 'd') {
+            keyFiredD = false
+            if (battleItemIndex < 3) {
+                blip()
+                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
+                battleItemIndex += 1
+                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
             }
         }
-        if (keys.a.pressed) {
-            if (!keyFiredA && !keyCheck) {
-                keyFiredA = true
-                keys.a.pressed = false
-                if (battleItemIndex > 0) {
-					blip()
-                    document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-                    battleItemIndex -= 1
-                    document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
-                }
+        if (keyFiredA && !keyCheck && keyActive === 'a') {
+            keyFiredA = false
+            if (battleItemIndex > 0) {
+                blip()
+                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
+                battleItemIndex -= 1
+                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
             }
         }
         if (keyFiredEnter && !keyCheck) {
@@ -516,7 +560,7 @@ function startBattle() {
                     if (character.stats.hp > character.stats.maxHp) {
                         character.stats.hp = character.stats.maxHp
                     }
-                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.innerHTML = 'HP has been restored!'
                     battleMessage.style.display = 'flex'
                     setTimeout(() => {
                         itemUseEndTurn()
@@ -525,7 +569,7 @@ function startBattle() {
                     if (character.items.potions.potion.quantity == 0) {
                         battleMessage.innerHTML = 'You do not have any of these!'
                     } else if (character.stats.hp == character.stats.maxHp) {
-                        battleMessage.innerHTML = 'Health already at max!'
+                        battleMessage.innerHTML = 'HP already at max!'
                     }
                     clearItemNoUseMessage()
                 }
@@ -536,7 +580,7 @@ function startBattle() {
                     if (character.stats.hp > character.stats.maxHp) {
                         character.stats.hp = character.stats.maxHp
                     }
-                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.innerHTML = 'HP has been restored!'
                     battleMessage.style.display = 'flex'
                     setTimeout(() => {
                         itemUseEndTurn()
@@ -545,7 +589,7 @@ function startBattle() {
                     if (character.items.potions.bigPotion.quantity == 0) {
                         battleMessage.innerHTML = 'You do not have any of these!'
                     } else if (character.stats.hp == character.stats.maxHp) {
-                        battleMessage.innerHTML = 'Health already at max!'
+                        battleMessage.innerHTML = 'HP already at max!'
                     }
                     clearItemNoUseMessage()
                 }
@@ -556,7 +600,7 @@ function startBattle() {
                     if (character.stats.mp > character.stats.maxMp) {
                         character.stats.mp = character.stats.maxMp
                     }
-                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.innerHTML = 'MP has been restored!'
                     battleMessage.style.display = 'flex'
                     setTimeout(() => {
                         itemUseEndTurn()
@@ -565,7 +609,7 @@ function startBattle() {
                     if (character.items.potions.magicPotion.quantity == 0) {
                         battleMessage.innerHTML = 'You do not have any of these!'
                     } else if (character.stats.mp == character.stats.maxMp) {
-                        battleMessage.innerHTML = 'Health already at max!'
+                        battleMessage.innerHTML = 'MP already at max!'
                     }
                     clearItemNoUseMessage()
                 }
@@ -576,7 +620,7 @@ function startBattle() {
                     if (character.stats.mp > character.stats.maxMp) {
                         character.stats.mp = character.stats.maxMp
                     }
-                    battleMessage.innerHTML = 'Health has been restored!'
+                    battleMessage.innerHTML = 'MP has been restored!'
                     battleMessage.style.display = 'flex'
                     setTimeout(() => {
                         itemUseEndTurn()
@@ -585,7 +629,7 @@ function startBattle() {
                     if (character.items.potions.bigMagicPotion.quantity == 0) {
                         battleMessage.innerHTML = 'You do not have any of these!'
                     } else if (character.stats.mp == character.stats.maxMp) {
-                        battleMessage.innerHTML = 'Health already at max!'
+                        battleMessage.innerHTML = 'MP already at max!'
                     }
                     clearItemNoUseMessage()
                 }
@@ -608,28 +652,76 @@ function startBattle() {
         document.querySelector('#battle-item-menu').style.display = 'none'
     }
 
+    if (keyFiredEsc && keyActive === 'esc') {
+        keyFiredEsc = false
+        if (battleItemMenuOpen) {
+            cancelSFX.play()
+            battleItemMenuOpen = false
+            document.querySelector('#battle-menu').style.display = 'flex'
+            document.querySelector('#battle-item-menu').style.display = 'none'
+            document.querySelector('#magic-menu').style.display = 'none'
+            document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
+            battleItemIndex = 0
+        }
+        if (magicMenuOpen) {
+            cancelSFX.play()
+            document.querySelector('#battle-menu').style.display = 'flex'
+            document.querySelector('#battle-item-menu').style.display = 'none'
+            document.querySelector('#magic-menu').style.display = 'none'
+            document.querySelector('#magic-req').innerHTML = ''
+            magicMenuOpen = false
+        }
+    }
+
 }
 
 function winScreen() {
-    winScreenAnimationId = window.requestAnimationFrame(winScreen)
+
+    gamepadCheck()
+
+    let winScreenAnimationId = window.requestAnimationFrame(winScreen)
     document.querySelector('#win-screen').style.display = "flex"
+    if (winScreenState === 'rewards') {
+        document.querySelector('#level-up-modal').style.display = 'none'
+        document.querySelector('#win-gains').style.display = "flex"
+    }
+    if (winScreenState === 'levelup') {
+        document.querySelector('#level-up-modal').style.display = 'flex'
+        document.querySelector('#win-gains').style.display = "none"
+    }
     document.querySelector('#exp-gain').innerHTML = 'EXP Gained: ' + enemy.exp
     document.querySelector('#money-gain').innerHTML = 'Money Gained: ' + enemy.money
-    if (keyFiredEnter) {
-        keyFiredEnter = false
+
+    if (keyFiredEnter && keyActive === 'enter') {
         if (!levelChecked) {
+            keyFiredEnter = false
+            winScreenState = 'levelup'
             checkLevelUp()
-        } else if (levelChecked) {
+        } else {
             document.querySelector('#level-up-modal').style.display = 'none'
+            document.querySelector('#win-gains').style.display = "none"
             document.querySelector('#win-screen').style.display = "none"
+            battle.initiated = false
+            inDialog = false
             window.cancelAnimationFrame(winScreenAnimationId)
-			battle.initiated = false
             animate()
         }
     }   
+    if (winScreenState === 'exit') {
+        document.querySelector('#level-up-modal').style.display = 'none'
+        document.querySelector('#win-gains').style.display = "none"
+        document.querySelector('#win-screen').style.display = "none"
+        battle.initiated = false
+        inDialog = false
+        window.cancelAnimationFrame(winScreenAnimationId)
+        animate()
+    }
 }
 
 function loseScreen() {
+
+    gamepadCheck()
+
     loseScreenAnimationId = window.requestAnimationFrame(loseScreen)
     document.querySelector('#lose-screen').style.display = "flex"
     if (keyFiredEnter) {
@@ -637,6 +729,7 @@ function loseScreen() {
         document.querySelector('#lose-screen').style.display = "none"
         window.cancelAnimationFrame(loseScreenAnimationId)
 		battle.initiated = false
+        inDialog = false
         animate()
     }   
 }

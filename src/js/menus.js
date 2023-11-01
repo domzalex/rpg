@@ -13,69 +13,73 @@ function populateStats() {
 }
 // Menu loop code
 function animateMenu() {
-
     
-
-    keyFiredW = false
-    keyFiredA = false
-    keyFiredS = false
-    keyFiredD = false
-
     const menuAnimationId = window.requestAnimationFrame(animateMenu)
-    // menu.draw()
     populateStats()
+    document.querySelector('#menu-buttons').style.display = 'flex'
     document.querySelector('#menu').style.display = 'flex'
 
-    if (keys.a.pressed) {
+    gamepadCheck()
 
-        if (!keyFiredA) {
-            keyFireda = true
-            keys.a.pressed = false
-            if (menuIndex > 0) {
-				blip()
-                document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
-                menuIndex -= 1
-                document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
-            }
+    if (keyActive === 'w' && keyFiredW) {
+        keyFiredW = false
+        if (menuIndex > 0) {
+            blip()
+            document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
+            menuIndex -= 1
+            document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         }
     }
-    if (keys.d.pressed) {
-		
-        if (!keyFiredD) {
-            keyFiredD = true
-            keys.d.pressed = false
-            if (menuIndex < 2) {
-				blip()
-                document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
-                menuIndex += 1
-                document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
-            }
+    
+    if (keyActive === 's' && keyFiredS) {
+        keyFiredS = false
+        if (menuIndex < 2) {
+            blip()
+            document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
+            menuIndex += 1
+            document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         }
     }
+    
+    if (menuIndex === 1 && keyFiredEnter && keyActive === 'enter') {
+        selectSFX.play()
+        document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
+        document.querySelector('#menu-buttons').style.display = 'none'
+        menuIndex = 0
+        
+        document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
+        window.cancelAnimationFrame(menuAnimationId)
+        animateStatus()
+    }
 
-    if (menuIndex === 2 && keyFiredEnter) {
+    else if (menuIndex === 2 && keyFiredEnter && keyActive === 'enter') {
 		selectSFX.play()
         createSaveFile()
         document.querySelector('#save-alert').style.opacity = '1'
         setTimeout(() => {
             document.querySelector('#save-alert').style.opacity = '0'
         }, 2000)
-    } else if (menuIndex === 0 && keyFiredEnter) {
+    } else if (menuIndex === 0 && keyFiredEnter && keyActive === 'enter') {
+        keyFiredEnter = false
 		select()
         itemOpen = true
     }
 
     if (itemOpen) {
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
+        document.querySelector('#menu-buttons').style.display = 'none'
         menuIndex = 0
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         window.cancelAnimationFrame(menuAnimationId)
-        document.querySelector('#menu').style.display = 'none'
         itemIndex = 0
+        document.querySelector('#menu-dialog').style.display = 'flex'
+        document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[0].quantity} Owned`
         animateMenuItems()
     }
 
     if (!menuOpen && !itemOpen) {
+        inDialog = false
+        document.querySelector('#menu-dialog').style.display = 'none'
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
         menuIndex = 0
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
@@ -83,95 +87,121 @@ function animateMenu() {
         document.querySelector('#menu').style.display = 'none'
         animate()
     }
+
+    if (keyFiredEsc && keyActive === 'esc') {
+        keyFiredEsc = false
+        menuOpen = false
+    }
+
 }
 // Activates items list within menu loop
 function animateMenuItems() {
 
-    
-
-    keyFiredW = false
-    keyFiredA = false
-    keyFiredS = false
-    keyFiredD = false
-
-    
     const menuItemAnimationId = window.requestAnimationFrame(animateMenuItems)
+
+    gamepadCheck()
     
     populateStats()
     populateItems()
+    document.querySelector('#menu').style.display = 'flex'
+    document.querySelector('#save-alert').style.opacity = '0'
     itemsPane.style.display = 'flex'
 
     // Handles specific item to hover over
-    if (keys.s.pressed) {
 		
-        if (!keyFiredS) {
-            keyFiredS = true
-            keys.s.pressed = false
-            if (itemIndex < 3) {
-				blip()
-                itemsPane.children[itemIndex].className = 'item'
-                itemIndex += 1
-                itemsPane.children[itemIndex].className = 'item item-hovered'
-            }
+    if (keyFiredS) {
+        keyFiredS = false
+        if (itemIndex < 3) {
+            blip()
+            itemsPane.children[itemIndex].className = 'menu-button'
+            itemIndex += 1
+            itemsPane.children[itemIndex].className = 'menu-button menu-hovered'
+            document.querySelector('#menu-dialog').style.color = 'white'
+            document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
         }
     }
-    if (keys.w.pressed) {
-        if (!keyFiredW) {
-            keyFiredW = true
-            keys.w.pressed = false
-            if (itemIndex > 0) {
-				blip()
-                itemsPane.children[itemIndex].className = 'item'
-                itemIndex -= 1
-                itemsPane.children[itemIndex].className = 'item item-hovered'
-            }
+    if (keyFiredW) {
+        keyFiredW = false
+        if (itemIndex > 0) {
+            blip()
+            itemsPane.children[itemIndex].className = 'menu-button'
+            itemIndex -= 1
+            itemsPane.children[itemIndex].className = 'menu-button menu-hovered'
+            document.querySelector('#menu-dialog').style.color = 'white'
+            document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
         }
     }
 
 
     // Handles item selection/use
-    window.addEventListener('keypress', (e) => {
-        switch (e.key) {
-            case 'Enter' :
 				
-                if (keyFiredEnter && itemOpen === true) {
-                    keyFiredEnter = false
-                    if (itemIndex === 0 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.potion.quantity > 0)) {
-						select()
-                        character.stats.hp += character.items.potions.potion.restore
-                        character.items.potions.potion.quantity -= 1
-                        if (character.stats.hp > character.stats.maxHp) {
-                            character.stats.hp = character.stats.maxHp
-                        }
-                    }
-                    else if (itemIndex === 1 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.bigPotion.quantity > 0)) {
-						select()
-                        character.stats.hp += character.items.potions.bigPotion.restore
-                        character.items.potions.bigPotion.quantity -= 1
-                        if (character.stats.hp > character.stats.maxHp) {
-                            character.stats.hp = character.stats.maxHp
-                        }
-                    }
-                    else if (itemIndex === 2 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.magicPotion.quantity > 0)) {
-						select()
-                        character.stats.mp += character.items.potions.magicPotion.restore
-                        character.items.potions.magicPotion.quantity -= 1
-                        if (character.stats.mp > character.stats.maxMp) {
-                            character.stats.mp = character.stats.maxMp
-                        }
-                    }
-                    else if (itemIndex === 3 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.bigMagicPotion.quantity > 0)) {
-						select()
-                        character.stats.mp += character.items.potions.bigMagicPotion.restore
-                        character.items.potions.bigMagicPotion.quantity -= 1
-                        if (character.stats.mp > character.stats.maxMp) {
-                            character.stats.mp = character.stats.maxMp
-                        }
-                    }
-                }
+    if (keyFiredEnter && itemOpen === true && keyActive === 'enter') {
+        keyFiredEnter = false
+        if (itemIndex === 0 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.potion.quantity > 0)) {
+            select()
+            character.stats.hp += character.items.potions.potion.restore
+            character.items.potions.potion.quantity -= 1
+            if (character.stats.hp > character.stats.maxHp) {
+                character.stats.hp = character.stats.maxHp
+            }
+            document.querySelector('#menu-dialog').style.color = 'rgb(88, 193, 61)'
+            document.querySelector('#menu-dialog').innerHTML = `Health restored`
+            setTimeout(() => {
+                document.querySelector('#menu-dialog').style.color = 'white'
+                document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
+            }, 1500)
         }
-
-    })
+        else if (itemIndex === 1 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.bigPotion.quantity > 0)) {
+            select()
+            character.stats.hp += character.items.potions.bigPotion.restore
+            character.items.potions.bigPotion.quantity -= 1
+            if (character.stats.hp > character.stats.maxHp) {
+                character.stats.hp = character.stats.maxHp
+            }
+            document.querySelector('#menu-dialog').style.color = 'rgb(88, 193, 61)'
+            document.querySelector('#menu-dialog').innerHTML = `Health restored`
+            setTimeout(() => {
+                document.querySelector('#menu-dialog').style.color = 'white'
+                document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
+            }, 1500)
+        }
+        else if (itemIndex === 2 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.magicPotion.quantity > 0)) {
+            select()
+            character.stats.mp += character.items.potions.magicPotion.restore
+            character.items.potions.magicPotion.quantity -= 1
+            if (character.stats.mp > character.stats.maxMp) {
+                character.stats.mp = character.stats.maxMp
+            }
+            document.querySelector('#menu-dialog').style.color = 'rgb(88, 193, 61)'
+            document.querySelector('#menu-dialog').innerHTML = `Magic restored`
+            setTimeout(() => {
+                document.querySelector('#menu-dialog').style.color = 'white'
+                document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
+            }, 1500)
+        }
+        else if (itemIndex === 3 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.bigMagicPotion.quantity > 0)) {
+            select()
+            character.stats.mp += character.items.potions.bigMagicPotion.restore
+            character.items.potions.bigMagicPotion.quantity -= 1
+            if (character.stats.mp > character.stats.maxMp) {
+                character.stats.mp = character.stats.maxMp
+            }
+            document.querySelector('#menu-dialog').style.color = 'rgb(88, 193, 61)'
+            document.querySelector('#menu-dialog').innerHTML = `Magic restored`
+            setTimeout(() => {
+                document.querySelector('#menu-dialog').style.color = 'white'
+                document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
+            }, 1500)
+        }
+        else {
+            document.querySelector('#menu-dialog').style.color = 'red'
+            document.querySelector('#menu-dialog').innerHTML = `Cannot use this now`
+            setTimeout(() => {
+                document.querySelector('#menu-dialog').style.color = 'white'
+                document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
+            }, 1500)
+        }
+    }
     
 
     // Handles exiting of item screen
@@ -179,8 +209,8 @@ function animateMenuItems() {
         if (e.key === 'Escape') {
 			cancelSFX.play()
             itemOpen = false
-            itemsPane.children[itemIndex].className = 'item'
-            itemsPane.children[0].className = 'item item-hovered'
+            itemsPane.children[itemIndex].className = 'menu-button'
+            itemsPane.children[0].className = 'menu-button menu-hovered'
         }
     })
     if (!itemOpen) {
@@ -189,14 +219,47 @@ function animateMenuItems() {
         animateMenu()
     }
 
+    if (keyFiredEsc && keyActive === 'esc') {
+        keyFiredEsc = false
+        cancelSFX.play()
+        itemOpen = false
+        itemsPane.children[itemIndex].className = 'menu-button'
+        itemsPane.children[0].className = 'menu-button menu-hovered'
+        itemsPane.style.display = 'none'
+        document.querySelector('#menu-dialog').innerHTML = ``
+        window.cancelAnimationFrame(menuItemAnimationId)
+        animateMenu()
+    }
+
 }
 // Populates item list within menu loop
-const itemsPane = document.querySelector('#all-items')
 function populateItems() {
-    itemsPane.children[0].children[1].innerHTML = character.items.potions.potion.quantity
-    itemsPane.children[1].children[1].innerHTML = character.items.potions.bigPotion.quantity
-    itemsPane.children[2].children[1].innerHTML = character.items.potions.magicPotion.quantity
-    itemsPane.children[3].children[1].innerHTML = character.items.potions.bigMagicPotion.quantity
+    itemsPane.children[0].getElementsByTagName('span').innerHTML = character.items.potions.potion.quantity
+    itemsPane.children[1].getElementsByTagName('span').innerHTML = character.items.potions.bigPotion.quantity
+    itemsPane.children[2].getElementsByTagName('span').innerHTML = character.items.potions.magicPotion.quantity
+    itemsPane.children[3].getElementsByTagName('span').innerHTML = character.items.potions.bigMagicPotion.quantity
+}
+
+function animateStatus() {
+    const statusAnimationId = window.requestAnimationFrame(animateStatus)
+
+    statusOpen = true
+
+    gamepadCheck()
+    
+    populateStats()
+    document.querySelector('#menu').style.display = 'flex'
+    document.querySelector('#save-alert').style.opacity = '0'
+    document.querySelector('#player-stats').style.display = 'flex'
+
+    if (keyFiredEsc && keyActive === 'esc') {
+        keyFiredEsc = false
+        window.cancelAnimationFrame(statusAnimationId)
+        statusOpen = false
+        document.querySelector('#player-stats').style.display = 'none'
+        animateMenu()
+    }
+
 }
 
 

@@ -10,7 +10,8 @@ let gameState = {
     progression: 0
 }
 let currentMap = {
-    bg: './img/map-pastel.png'
+    // bg: './img/map-pastel.png'
+    bg: './img/mapNEWdemo.png'
 }
 let character = {
     position: {
@@ -21,7 +22,7 @@ let character = {
     stats: {
         lvl: 5,
         maxHp: 30,
-        hp: 30,
+        hp: 20,
         maxMp: 20,
         mp: 20,
         exp: 100,
@@ -61,7 +62,7 @@ let character = {
     items: {
         potions: {
             potion: {
-                quantity: 0,
+                quantity: 1,
                 restore: 30
             },
             bigPotion: {
@@ -73,7 +74,7 @@ let character = {
                 restore: 20
             },
             bigMagicPotion: {
-                quantity: 0,
+                quantity: 1,
                 restore: 50
             }
         }
@@ -84,35 +85,38 @@ const enemies = {
     0: {
         name: 'Neutral Slime',
         img: 'img/enemy-wind-weak-2.png',
-        hp: 20,
+        hp: 3,
         atk: 15,
         def: 60,
         spd: 8,
         exp: 70,
         money: 13,
-        weakness: 'wind'
+        weakness: 'wind',
+        drop: 'potion'
     },
     1: {
         name: 'Water Slime',
         img: 'img/enemy-lightning-weak-2.png',
-        hp: 30,
+        hp: 5,
         atk: 20,
         def: 35,
         spd: 5,
         exp: 100,
         money: 30,
-        weakness: 'lightning'
+        weakness: 'lightning',
+        drop: 'potion'
     },
     2: {
         name: 'Grass Slime',
         img: 'img/enemy-fire-weak-2.png',
-        hp: 15,
+        hp: 2,
         atk: 25,
         def: 15,
-        spd: 20,
+        spd: 2,
         exp: 50,
         money: 15,
-        weakness: 'fire'
+        weakness: 'fire',
+        drop: 'magicPotion'
     }
 }
 
@@ -122,8 +126,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -3600,
-    y: -3700
+    x: -2350,
+    y: -1330
 }
 // -1500, -6200, -3800
 canvas.width = 1280
@@ -148,7 +152,10 @@ let stepCounter = 0
 let menuOpen = false
 let menuIndex = 0
 let itemOpen = false
+const itemsPane = document.querySelector('#all-items')
 let itemIndex = 0
+let inBattle = false
+let winScreenState = ''
 let battleMenuIndex = 0
 let battleItemMenuOpen = false
 let battleItemIndex = 0
@@ -164,10 +171,13 @@ let keyFiredW = false
 let keyFiredA = false
 let keyFiredS = false
 let keyFiredD = false
+let keyFiredE = false
 let keyFiredEnter = false
 let keyFiredEsc = false
 let attacking = false
 let useMagic = false
+let frameCancel = false
+let keyActive = ''
 let pressedKeys = []
 let whichCollision = collisions
 let keyCheck = false
@@ -178,6 +188,7 @@ let npcIterator = 0
 let yesNo = false
 let index = 0
 let shopMenuOpen = false
+let statusOpen = false
 let bgmusic = false
 const keys = {
     w: {
@@ -203,7 +214,7 @@ const keys = {
     }
 }
 let spd = 5
-let moving = true
+let moving = false
 const battle = {
     initiated: false
 }
@@ -218,6 +229,8 @@ const npcDialogHitboxes = []
 // General images for overworld, battle scene, menu scene, etc.
 let backgroundImage = new Image()
 backgroundImage.src = currentMap.bg
+let foregroundImage = new Image()
+foregroundImage.src = './img/mapNEWdemoTOP.png'
 const battleBg = new Image()
 battleBg.src = './img/battle-bg-pastel.png'
 const enemyImg = new Image()
@@ -225,18 +238,30 @@ const basicAttackImg = new Image()
 basicAttackImg.src = './img/basic-attack.png'
 const basicEnemyAttackImg = new Image()
 basicEnemyAttackImg.src = './img/basic-enemy-attack.png'
+const merchantIconImg = new Image()
+merchantIconImg.src = './img/merchantIcon.png'
 
 // Player sprite images
 const playerDown = new Image()
-playerDown.src = './img/player-down-2.png'
+playerDown.src = './img/player-down-4.png'
 const playerUp = new Image()
-playerUp.src = './img/player-up-2.png'
+playerUp.src = './img/player-up-4.png'
 const playerLeft = new Image()
-playerLeft.src = './img/player-left-2.png'
+playerLeft.src = './img/player-left-4.png'
 const playerRight = new Image()
-playerRight.src = './img/player-right-2.png'
-const playerBattle = new Image()
-playerBattle.src = './img/player-battle.png'
+playerRight.src = './img/player-right-4.png'
+
+const playerIdleDown = new Image()
+playerIdleDown.src = './img/player-down-idle.png'
+const playerIdleUp = new Image()
+playerIdleUp.src = './img/player-up-idle.png'
+const playerIdleLeft = new Image()
+playerIdleLeft.src = './img/player-left-idle.png'
+const playerIdleRight = new Image()
+playerIdleRight.src = './img/player-right-idle.png'
+
+// const playerBattle = new Image()
+// playerBattle.src = './img/player-battle.png'
 const merchantImage = new Image()
 merchantImage.src = './img/merchant.png'
 
@@ -246,25 +271,32 @@ let player = new Sprite({
         x: canvas.width / 2 - 40,
         y: canvas.height / 2 - 40
     },
-    image: playerDown,
+    image: playerIdleDown,
+    facing: 'down',
     frames: {
-        max: 8
+        max: 6
     },
     sprites: {
         up: playerUp,
         down: playerDown,
         left: playerLeft,
-        right: playerRight
-    }
+        right: playerRight,
+    },
+    idleSprites: {
+        idleUp: playerIdleUp,
+        idleDown: playerIdleDown,
+        idleLeft: playerIdleLeft,
+        idleRight: playerIdleRight
+    },
 })
 const battlePlayer = new Sprite({
     position: {
         x: 850,
         y: 270
     },
-    image: playerBattle,
+    image: playerLeft,
     frames: {
-        max: 8
+        max: 6
     }
 })
 const basicAttack = new Sprite({
@@ -311,6 +343,13 @@ let background = new Sprite({
         y: offset.y
     },
     image: backgroundImage
+})
+let foreground = new Sprite({
+    position: {
+        x: offset.x,
+        y: offset.y
+    },
+    image: foregroundImage
 })
 const battleBackground = new Sprite({
     position: {
@@ -367,6 +406,7 @@ function tallGrass() {
 // BATTLE CODE VARIABLES //
 
 const hpBarWidth = 70
+let fleeing
 let explosionToggle = false
 let magicType = null
 let baseDamage
@@ -386,4 +426,168 @@ const magicMenu = document.querySelector('#magic-menu')
 let playerHealth = document.querySelector('#player-health')
 let playerMagic = document.querySelector('#player-magic')
 let battleAnimationId
-let winScreenAnimationId
+
+
+function gamepadCheck() {
+    const gamepad = navigator.getGamepads()[0]
+    if (gamepad && gamepad.connected) {
+        const axes = gamepad.axes
+        const buttons = gamepad.buttons
+        if (inDialog || shopMenuOpen || menuOpen || itemOpen || yesNo) {
+            if ((!keyFiredW && !keyFiredA && !keyFiredS && !keyFiredD && !keyFiredEnter && !keyFiredEsc) && keyActive == '') {
+                if (buttons[12].pressed) {
+                    keyFiredW = true
+                    keyActive = 'w'
+                }
+                if (buttons[13].pressed) {
+                    keyFiredS = true
+                    keyActive = 's'
+                }
+                if (buttons[14].pressed) {
+                    keyFiredA = true
+                    keyActive = 'a'
+                }
+                if (buttons[15].pressed) {
+                    keyFiredD = true
+                    keyActive = 'd'
+                }
+                if (buttons[1].pressed) {
+                    keyFiredEnter = true
+                    keyActive = 'enter'
+                }
+                if (buttons[0].pressed) {
+                    keyFiredEsc = true
+                    keyActive = 'esc'
+                }
+            }
+            if (!buttons[12].pressed && keyActive === 'w') {
+                keyFiredW = false
+                keyActive = ''
+            }
+            if (!buttons[13].pressed && keyActive === 's') {
+                keyFiredS = false
+                keyActive = ''
+            }
+            if (!buttons[14].pressed && keyActive === 'a') {
+                keyFiredA = false
+                keyActive = ''
+            }
+            if (!buttons[15].pressed && keyActive === 'd') {
+                keyFiredD = false
+                keyActive = ''
+            }
+            if (!buttons[1].pressed && keyActive === 'enter') {
+                keyFiredEnter = false
+                keyActive = ''
+            }
+            if (!buttons[0].pressed && keyActive === 'esc') {
+                keyFiredEsc = false
+                keyActive = ''
+            }
+        }
+        else if (!inDialog) {
+            if (gamepad.buttons[12].pressed || ((axes[1] < -0.75) && (axes[0] > -1))) {
+
+                keyFiredW = true
+                keys.w.pressed = true
+                lastKey = 'w'
+                pressedKeys.push('w')
+                
+            } else {
+    
+                keyFiredW = false
+                keys.w.pressed = false
+                for (let i = 0; i < pressedKeys.length; i++) {
+                    if (pressedKeys[i] === 'w') {
+                        pressedKeys.splice(i, 1)
+                    }
+                }
+    
+            }
+            if (gamepad.buttons[13].pressed || ((axes[1] > 0.75) && (axes[0] > -1))) {
+                
+                keyFiredS = true
+                keys.s.pressed = true
+                lastKey = 's'
+                pressedKeys.push('s')
+    
+            } else {
+    
+                keyFiredS = false
+                keys.s.pressed = false
+                for (let i = 0; i < pressedKeys.length; i++) {
+                    if (pressedKeys[i] === 's') {
+                        pressedKeys.splice(i, 1)
+                    }
+                }
+    
+            }
+            if (gamepad.buttons[14].pressed || ((axes[0] < -0.75) && (axes[1] < 0.75 && axes[1] > -0.75))) {
+    
+                keyFiredA = true
+                keys.a.pressed = true
+                lastKey = 'a'
+                pressedKeys.push('a')
+    
+            } else {
+    
+                keyFiredA = false
+                keys.a.pressed = false
+                for (let i = 0; i < pressedKeys.length; i++) {
+                    if (pressedKeys[i] === 'a') {
+                        pressedKeys.splice(i, 1)
+                    }
+                }
+    
+            }
+            if (gamepad.buttons[15].pressed || (axes[0] > 0.75 && (axes[1] < 0.75 && axes[1] > -0.75))) {
+    
+                keyFiredD = true
+                keys.d.pressed = true
+                lastKey = 'd'
+                pressedKeys.push('d')
+    
+            } else {
+    
+                keyFiredD = false
+                keys.d.pressed = false
+                for (let i = 0; i < pressedKeys.length; i++) {
+                    if (pressedKeys[i] === 'd') {
+                        pressedKeys.splice(i, 1)
+                    }
+                }
+                
+            }
+            if (!keyFiredEnter && keyActive === '') {
+                if (buttons[1].pressed) {
+                    keyFiredEnter = true
+                    keyActive = 'enter'
+                }
+            }
+            if (!buttons[1].pressed && keyActive === 'enter') {
+                keyFiredEnter = false
+                keyActive = ''
+            }
+            
+        } 
+
+
+
+
+
+        if (!keyFiredE) {
+            if (gamepad.buttons[9].pressed) {
+                keyFiredE = true
+                if (menuOpen == false && !battle.initiated && !shopMenuOpen && !inDialog) {
+                    menuOpen = true
+                } else if (menuOpen == true && !itemOpen) {
+                    menuOpen = false
+                }
+            }
+        }
+        if (!gamepad.buttons[9].pressed) {
+            keyFiredE = false
+        }
+
+    };
+}

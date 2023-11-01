@@ -5,18 +5,17 @@
 /////////////////////////
 
 
-
 function animate() {
 
     //begins the main animation event
     const animationId = window.requestAnimationFrame(animate)
-
+    
     //checks for current screen
     checkCollisionChange()
 
 
     //sets all movable objects that move on player directional input
-    movables = [background, ...boundaries, ...npcList, ...npcCol, ...battleZones]
+    movables = [background, foreground, ...boundaries, ...npcList, ...npcCol, ...battleZones]
 
 
     //draws the character, all of the onscreen graphical elements, and the world boundaries/hitboxes/etc from 'bottom' to 'top'
@@ -29,20 +28,34 @@ function animate() {
     })
 
     
-
 	npcList.forEach(npc => {
 		npc.draw()
 	})
-
     npcCol.forEach(col => {
         col.draw()
     })
 
 	player.draw()
 
+    foreground.draw()
+
     //sets player moving variable to handle if player is moving or not
-    let moving = true
-    player.moving = false
+    player.moving = true
+
+
+    if (!moving) {
+        if (player.facing === 'down') {
+            player.image = player.idleSprites.idleDown
+        } else if (player.facing === 'up') {
+            player.image = player.idleSprites.idleUp
+        } else if (player.facing === 'left') {
+            player.image = player.idleSprites.idleLeft
+        } else if (player.facing === 'right') {
+            player.image = player.idleSprites.idleRight
+        }
+        
+    }
+    
 
 	for (let i = 0; i < npcList.length; i++) {
 		const npc = npcList[i]
@@ -51,12 +64,15 @@ function animate() {
 		}
 	}
 
+    gamepadCheck()
 
-    //handles main character movement
+
+
     if (keys.w.pressed && pressedKeys[pressedKeys.length - 1] === 'w') {
         if (inDialog == false) {
+            player.facing = 'up'
             player.image = player.sprites.up
-            player.moving = true
+            moving = true
 			for (let i = 0; i < npcList.length; i++) {
                 const npc = npcList[i]
                 if (
@@ -103,8 +119,9 @@ function animate() {
     }
     else if (keys.a.pressed && pressedKeys[pressedKeys.length - 1] === 'a') {
         if (inDialog == false) {
+            player.facing = 'left'
             player.image = player.sprites.left
-            player.moving = true
+            moving = true
 			for (let i = 0; i < npcList.length; i++) {
                 const npc = npcList[i]
                 if (
@@ -151,8 +168,9 @@ function animate() {
     }
     else if (keys.s.pressed && pressedKeys[pressedKeys.length - 1] === 's') {
         if (inDialog == false) {
+            player.facing = 'down'
             player.image = player.sprites.down
-            player.moving = true
+            moving = true
 			for (let i = 0; i < npcList.length; i++) {
                 const npc = npcList[i]
                 if (
@@ -199,8 +217,9 @@ function animate() {
     }
     else if (keys.d.pressed && pressedKeys[pressedKeys.length - 1] === 'd') {
         if (inDialog == false) {
+            player.facing = 'right'
             player.image = player.sprites.right
-            player.moving = true
+            moving = true
 			for (let i = 0; i < npcList.length; i++) {
                 const npc = npcList[i]
                 if (
@@ -245,6 +264,9 @@ function animate() {
             }
         }
     }
+    
+
+
 
 
     //handles battle zone collision checks
@@ -278,10 +300,22 @@ function animate() {
                 stepCounter >= 200) ||
                 (stepCounter >= 1000))
             ) {
-                window.cancelAnimationFrame(animationId)
-                battle.initiated = true
-                startBattle()
                 stepCounter = 0
+                battle.initiated = true
+                inDialog = true
+                keyFiredW = false
+                keyFiredA = false
+                keyFiredS = false
+                keyFiredD = false
+                window.cancelAnimationFrame(animationId)
+                battlePlayer.image = playerIdleLeft
+                document.querySelector('#battle-transition').style.left = '0px'
+                setTimeout(() => {
+                    document.querySelector('#battle-transition').style.left = '-1280px'
+                }, 1000)
+                setTimeout(() => {
+                    startBattle()
+                }, 1000)
                 break
             }
         }
@@ -290,6 +324,7 @@ function animate() {
 
     //triggers the main menu to open
     if (menuOpen == true) {
+        inDialog = true
         window.cancelAnimationFrame(animationId)
         animateMenu()
     }
@@ -304,10 +339,12 @@ function animate() {
             document.querySelector('#no').style.border = 'solid 5px white'
             document.querySelector('#yes').style.border = 'solid 5px transparent'
         }
-        if (keys.d.pressed && index == 0) {
+        if (keyActive === 'd' && keyFiredD && index == 0) {
             index++
-        } else if (keys.a.pressed && index == 1) {
+            keyFiredD = false
+        } else if (keyActive === 'a' && keyFiredA && index == 1) {
             index--
+            keyFiredA = false
         }
         if (keyFiredEnter && index == 0) {
             index = 0
@@ -325,6 +362,7 @@ function animate() {
             yesNo = false
             inDialog = false
             keyFiredEnter = false
+            document.querySelector('#npc-dialog').style.display = 'none'
             document.querySelector('#npc-message').style.display = 'none'
             document.querySelector('#merchant-options-one').style.display = 'none'
         }
@@ -335,44 +373,48 @@ function animate() {
     if (shopMenuOpen) {
         document.querySelector('#merchant-options-one').style.display = 'none'
         document.querySelector('#merchant-options-two').style.display = 'flex'
-        document.querySelector('#shop-money').innerHTML = `Money: $${character.money}`
-        document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.items.potions.bigPotion.quantity}`
+        document.querySelector('#menu-dialog').style.display = 'flex'
+        document.querySelector('#menu-dialog').innerHTML = `Money: $${character.money}`
+        document.querySelector('#shop-amount-owned').innerHTML = `Owned: ${character.items.potions.bigPotion.quantity}`
         let shopOptions = document.querySelectorAll('.shop-item')
-        shopOptions[index].style.border = 'solid 5px white'
+        shopOptions[index].className = 'shop-item menu-button menu-hovered'
 
         //sets all the cost/amount owned per item selection (TEMPORARY)
         if (index == 0) {
-            document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.items.potions.bigPotion.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
+            document.querySelector('#shop-amount-owned').innerHTML = `Owned: ${character.items.potions.bigPotion.quantity}`
+            document.querySelector('#shop-cost').innerHTML = `Cost: $${npc2.items[index].cost}`
         } else if (index == 1) {
-            document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.items.potions.bigMagicPotion.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
+            document.querySelector('#shop-amount-owned').innerHTML = `Owned: ${character.items.potions.bigMagicPotion.quantity}`
+            document.querySelector('#shop-cost').innerHTML = `Cost: $${npc2.items[index].cost}`
         } else if (index == 2) {
-            document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.equipment.armor.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
+            document.querySelector('#shop-amount-owned').innerHTML = `Owned: ${character.equipment.armor.quantity}`
+            document.querySelector('#shop-cost').innerHTML = `Cost: $${npc2.items[index].cost}`
         } else if (index == 3) {
-            document.querySelector('#shop-amount-owned').innerHTML = `Amount Owned: ${character.equipment.weapon.quantity}`
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}<br>Cost: $${npc2.items[index].cost}`
+            document.querySelector('#shop-amount-owned').innerHTML = `Owned: ${character.equipment.weapon.quantity}`
+            document.querySelector('#shop-cost').innerHTML = `Cost: $${npc2.items[index].cost}`
         } else {
-            document.querySelector('#shop-amount-owned').innerHTML = ``
-            document.querySelector('#shop-money').innerHTML = `Money: $${character.money}`
+            document.querySelector('#shop-amount-owned').innerHTML = `Owned: 0`
+            document.querySelector('#shop-cost').innerHTML = `Cost: $0`
 			document.querySelector('#shop-message').innerHTML = 'Leave shop'
         }
 
         //handles selection of items and purchase of items
-        if (keyFiredW && index > 0) {
+        if (keyActive === 'w' && keyFiredW && index > 0) {
 			blip()
+            shopOptions[index].className = 'shop-item menu-button'
             index--
-			document.querySelector('#shop-message').style.color = 'white'
+            shopOptions[index].className = 'shop-item menu-button menu-hovered'
+			document.querySelector('#shop-message').style.color = 'rgb(88, 193, 61)'
 			document.querySelector('#shop-message').innerHTML = `${npc2.items[index].effect}`
-            shopOptions[index + 1].style.border = 'solid 5px transparent'
             keyFiredW = false
-        } else if (keyFiredS && index < shopOptions.length - 1) {
+        }
+        if (keyActive === 's' && keyFiredS && index < shopOptions.length - 1) {
 			blip()
+            shopOptions[index].className = 'shop-item menu-button'
             index++
-			document.querySelector('#shop-message').style.color = 'white'
+            shopOptions[index].className = 'shop-item menu-button menu-hovered'
+			document.querySelector('#shop-message').style.color = 'rgb(88, 193, 61)'
 			document.querySelector('#shop-message').innerHTML = `${npc2.items[index].effect}`
-            shopOptions[index - 1].style.border = 'solid 5px transparent'
             keyFiredS = false
         }
         if (keyFiredEnter && index == 0) {
@@ -422,13 +464,15 @@ function animate() {
         else if (keyFiredEnter && index == shopOptions.length - 1) {
 			select()
 			keyFiredEnter = false
-            shopOptions[index].style.border = 'solid 5px transparent'
+            shopOptions[index].className = 'shop-item menu-button'
             index = 0
             shopMenuOpen = false
             keyFiredEnter = false
             inDialog = false
+            document.querySelector('#menu-dialog').style.display = 'none'
             document.querySelector('#npc-message').style.display = 'none'
             document.querySelector('#merchant-options-two').style.display = 'none'
+            document.querySelector('#npc-dialog').style.display = 'none'
         }
     }
 
@@ -451,13 +495,18 @@ function animate() {
             if (npc.type === 'merchant') {
                 if (npcIterator == (Object.keys(npc.dialog).length)) {
                     inDialog = true
+                    document.querySelector('#npc-dialog').style.display = 'flex'
+                    document.querySelector('#npcDialogIcon').style.backgroundImage = `none`
                     document.querySelector('#npc-message').style.display = 'none'
                     document.querySelector('#merchant-options-one').style.display = 'flex'
                     keyFiredEnter = false
                     yesNo = true
                 } else {
                     inDialog = true
-                    document.querySelector('#npc-message').style.display = 'flex'
+                    document.querySelector('#npc-dialog').style.display = 'flex'
+                    document.querySelector('#npcDialogIcon').style.backgroundImage = `url('./img/merchantIcon.png')`
+                    document.querySelector('#npc-message').style.display = 'inline-block'
+                    document.querySelector('#npc-message-container').style.display = 'flex'
                     document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
                     keyFiredEnter = false
                     npcIterator++
@@ -468,11 +517,13 @@ function animate() {
                         npc.talkedTo = true
                         inDialog = false
                         character.items.potions.potion.quantity += 3
+                        document.querySelector('#npc-dialog').style.display = 'none'
                         document.querySelector('#npc-message').style.display = 'none'
                         keyFiredEnter = false
                         npcIterator = 0
                     } else {
                         inDialog = true
+                        document.querySelector('#npc-dialog').style.display = 'flex'
                         document.querySelector('#npc-message').style.display = 'flex'
                         document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
                         keyFiredEnter = false
@@ -481,12 +532,14 @@ function animate() {
                 } else {
                     if (npcIterator == (Object.keys(npc.dialog).length)) {
                         inDialog = false
+                        document.querySelector('#npc-dialog').style.display = 'none'
                         document.querySelector('#npc-message').style.display = 'none'
                         keyFiredEnter = false
                         npcIterator = 0
                     } else {
                         inDialog = true
                         npcIterator = Object.keys(npc.dialog).length - 1
+                        document.querySelector('#npc-dialog').style.display = 'flex'
                         document.querySelector('#npc-message').style.display = 'flex'
                         document.querySelector('#npc-message').innerHTML = npc.dialog[npcIterator]
                         keyFiredEnter = false
@@ -495,10 +548,16 @@ function animate() {
                 }
             }
             
-            
         }
     }
+
 }
+
+// if (player.facing === 'down' && player.moving == false) {
+//     player.image = player.sprites.idleDown
+// } else {
+
+// }
 
 
 // Run main game loop

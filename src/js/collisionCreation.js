@@ -11,14 +11,14 @@ function rectangleCollision({ rectangle1, rectangle2 }) {
 function createCollisions(setCollisionMap) {
     if (!collisionsSet) {
         collisionsMap = []
-        for (let i = 0; i < setCollisionMap.length; i+= 100) {
-            collisionsMap.push(setCollisionMap.slice(i, 100 + i))
+        for (let i = 0; i < setCollisionMap.length; i+= 80) {
+            collisionsMap.push(setCollisionMap.slice(i, 80 + i))
         }
-        // createBoundaries()
+        createBoundaries()
     }
 }
-for (let i = 0; i < battleZonesData.length; i+= 100) {
-    battleZonesMap.push(battleZonesData.slice(i, 100 + i))
+for (let i = 0; i < battleZonesData.length; i+= 80) {
+    battleZonesMap.push(battleZonesData.slice(i, 80 + i))
 }
 
 // Populates overworld collision maps
@@ -26,9 +26,9 @@ function createBoundaries() {
     boundaries = []
     collisionsMap.forEach((row, i) => {
         row.forEach(((symbol, j) => {
-            if (symbol === 41) {
+            if (symbol === 7544) { //original value 41
                 boundaries.push(new Boundary({position: {
-                    x: j * Boundary.width + (offset.x),
+                    x: j * Boundary.width + (offset.x + 20),
                     y: i * Boundary.height + (offset.y)
                 }}))
             }
@@ -75,6 +75,7 @@ let npc2 = new NPC({
 	frames: {
         max: 1
     },
+    icon: merchantIconImg,
 	type: 'merchant',
 	dialog: {
 		0: 'Hello, traveller.',
@@ -99,7 +100,7 @@ let npc2 = new NPC({
         },
         3: {
             name: 'big sword',
-			effect: `Increases non-magic attack by 50%`,
+			effect: `Increases main attack by 50%`,
             cost: 500
         },
 		4: {
@@ -135,7 +136,7 @@ function checkCollisionChange() {
 }
 battleZonesMap.forEach((row, i) => {
     row.forEach(((symbol, j) => {
-        if (symbol === 51) {
+        if (symbol === 7544) { // original value 51
             battleZones.push(new BattleZone({position: {
                 x: j * BattleZone.width + offset.x,
                 y: i * BattleZone.height + offset.y
