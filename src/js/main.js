@@ -45,12 +45,14 @@ function animate() {
 
     gamepadCheck()
 
+    console.log(keyActive)
+
 
     //Logic for character movement, and collisions for both scene boundaries as well as battle zones
     const directions = ['w', 'a', 's', 'd']
 
     for (const direction of directions) {
-        if (keys[direction].pressed && pressedKeys[pressedKeys.length - 1] === direction && !inDialog) {
+        if (keyActive === direction && pressedKeys[pressedKeys.length - 1] === direction && !inDialog) {
             const directionMap = {
                 'w': { facing: 'up', position: { x: 0, y: 1 } },
                 'a': { facing: 'left', position: { x: 1, y: 0 } },
@@ -136,7 +138,6 @@ function animate() {
         window.cancelAnimationFrame(animationId)
         animateMenu()
     }
-
 
     //triggers 2nd merchant dialog (yes or no to open shop menu) THIS MUST GO BEFORE THE MERCHANT COLLISION CHECK idk why
     // if (yesNo) {

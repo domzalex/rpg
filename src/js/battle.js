@@ -352,8 +352,8 @@ function startBattle() {
     if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
 			
-        if (keyFiredD && keyActive === 'd' && !attacking && !keyCheck) {
-            keyFiredD = false
+        if (keyActive === 'd' && !attacking && !keyCheck) {
+            keyActive = ''
             if (battleMenuIndex < 3) {
                 blip()
                 battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
@@ -363,8 +363,8 @@ function startBattle() {
         }
 
         
-        if (keyFiredA && keyActive === 'a' && !attacking && !keyCheck) {
-            keyFiredA = false
+        if (keyActive === 'a' && !attacking && !keyCheck) {
+            keyActive = ''
             if (battleMenuIndex > 0) {
                 blip()
                 battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
@@ -384,8 +384,8 @@ function startBattle() {
         battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
 		document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
 			
-        if (keyFiredD && keyActive === 'd') {
-            keyFiredD = false
+        if (keyActive === 'd') {
+            keyActive = ''
             if (magicMenuIndex < 2) {
                 blip()
                 document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
@@ -394,8 +394,8 @@ function startBattle() {
             }
         }
 			
-        if (keyFiredA && keyActive === 'a') {
-            keyFiredA = false
+        if (keyActive === 'a') {
+            keyActive = ''
             if (magicMenuIndex > 0) {
                 blip()
                 document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
@@ -403,8 +403,8 @@ function startBattle() {
                 document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
             }
         }
-        if (keyFiredEnter && !attacking) {
-            
+        if (keyActive === 'enter' && !attacking) {
+            keyActive = ''
             magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
 			document.querySelector('#magic-req').innerHTML = ''
 
@@ -445,8 +445,8 @@ function startBattle() {
     }
     
     if (!magicMenuOpen && !battleItemMenuOpen) {
-        if (keyFiredEnter && !attacking && !keyCheck) {
-            keyFiredEnter = false
+        if (keyActive === 'enter' && !attacking && !keyCheck) {
+            keyActive = ''
 			select()
             if (battleMenuIndex === 0) {
                 playerAttack()
@@ -531,8 +531,8 @@ function startBattle() {
             i++
         })
 
-        if (keyFiredD && !keyCheck && keyActive === 'd') {
-            keyFiredD = false
+        if (!keyCheck && keyActive === 'd') {
+            keyActive = ''
             if (battleItemIndex < 3) {
                 blip()
                 document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
@@ -540,8 +540,8 @@ function startBattle() {
                 document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
             }
         }
-        if (keyFiredA && !keyCheck && keyActive === 'a') {
-            keyFiredA = false
+        if (!keyCheck && keyActive === 'a') {
+            keyActive = ''
             if (battleItemIndex > 0) {
                 blip()
                 document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
@@ -549,8 +549,8 @@ function startBattle() {
                 document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
             }
         }
-        if (keyFiredEnter && !keyCheck) {
-            keyFiredEnter = false
+        if (keyActive === 'enter' && !keyCheck) {
+            keyActive = ''
             keyCheck = true
 			select()
             if (battleItemIndex == 0) {
