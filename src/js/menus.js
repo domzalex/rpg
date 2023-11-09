@@ -19,30 +19,31 @@ function animateMenu() {
     document.querySelector('#menu-buttons').style.display = 'flex'
     document.querySelector('#menu').style.display = 'flex'
 
-    gamepadCheck()
+    // gamepadCheck()
 
-    if (keyActive === 'w' && keyFiredW) {
-        keyFiredW = false
+    if (keyActive === 'w') {
+        keyActive = ''
         if (menuIndex > 0) {
-            blip()
+            // blip()
             document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
             menuIndex -= 1
             document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         }
     }
     
-    if (keyActive === 's' && keyFiredS) {
-        keyFiredS = false
+    if (keyActive === 's') {
+        keyActive = ''
         if (menuIndex < 2) {
-            blip()
+            // blip()
             document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
             menuIndex += 1
             document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button menu-hovered'
         }
     }
     
-    if (menuIndex === 1 && keyFiredEnter && keyActive === 'enter') {
-        selectSFX.play()
+    if (menuIndex === 1 && keyActive === 'enter') {
+        // selectSFX.play()
+        keyActive = ''
         document.querySelector('#menu-buttons').children[menuIndex].className = 'menu-button'
         document.querySelector('#menu-buttons').style.display = 'none'
         menuIndex = 0
@@ -52,16 +53,17 @@ function animateMenu() {
         animateStatus()
     }
 
-    else if (menuIndex === 2 && keyFiredEnter && keyActive === 'enter') {
-		selectSFX.play()
+    else if (menuIndex === 2 && keyActive === 'enter') {
+		// selectSFX.play()
+        keyActive = ''
         createSaveFile()
         document.querySelector('#save-alert').style.opacity = '1'
         setTimeout(() => {
             document.querySelector('#save-alert').style.opacity = '0'
         }, 2000)
-    } else if (menuIndex === 0 && keyFiredEnter && keyActive === 'enter') {
-        keyFiredEnter = false
-		select()
+    } else if (menuIndex === 0 && keyActive === 'enter') {
+        keyActive = ''
+		// select()
         itemOpen = true
     }
 
@@ -88,8 +90,8 @@ function animateMenu() {
         animate()
     }
 
-    if (keyFiredEsc && keyActive === 'esc') {
-        keyFiredEsc = false
+    if (keyActive === 'esc') {
+        keyActive = ''
         menuOpen = false
     }
 
@@ -99,7 +101,7 @@ function animateMenuItems() {
 
     const menuItemAnimationId = window.requestAnimationFrame(animateMenuItems)
 
-    gamepadCheck()
+    // gamepadCheck()
     
     populateStats()
     populateItems()
@@ -109,10 +111,10 @@ function animateMenuItems() {
 
     // Handles specific item to hover over
 		
-    if (keyFiredS) {
-        keyFiredS = false
+    if (keyActive === 's') {
+        keyActive = ''
         if (itemIndex < 3) {
-            blip()
+            // blip()
             itemsPane.children[itemIndex].className = 'menu-button'
             itemIndex += 1
             itemsPane.children[itemIndex].className = 'menu-button menu-hovered'
@@ -120,10 +122,10 @@ function animateMenuItems() {
             document.querySelector('#menu-dialog').innerHTML = `${Object.values(character.items.potions)[itemIndex].quantity} Owned`
         }
     }
-    if (keyFiredW) {
-        keyFiredW = false
+    if (keyActive === 'w') {
+        keyActive = ''
         if (itemIndex > 0) {
-            blip()
+            // blip()
             itemsPane.children[itemIndex].className = 'menu-button'
             itemIndex -= 1
             itemsPane.children[itemIndex].className = 'menu-button menu-hovered'
@@ -135,10 +137,10 @@ function animateMenuItems() {
 
     // Handles item selection/use
 				
-    if (keyFiredEnter && itemOpen === true && keyActive === 'enter') {
-        keyFiredEnter = false
+    if (itemOpen === true && keyActive === 'enter') {
+        keyActive = ''
         if (itemIndex === 0 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.potion.quantity > 0)) {
-            select()
+            // select()
             character.stats.hp += character.items.potions.potion.restore
             character.items.potions.potion.quantity -= 1
             if (character.stats.hp > character.stats.maxHp) {
@@ -152,7 +154,7 @@ function animateMenuItems() {
             }, 1500)
         }
         else if (itemIndex === 1 && (character.stats.hp < character.stats.maxHp) && (character.items.potions.bigPotion.quantity > 0)) {
-            select()
+            // select()
             character.stats.hp += character.items.potions.bigPotion.restore
             character.items.potions.bigPotion.quantity -= 1
             if (character.stats.hp > character.stats.maxHp) {
@@ -166,7 +168,7 @@ function animateMenuItems() {
             }, 1500)
         }
         else if (itemIndex === 2 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.magicPotion.quantity > 0)) {
-            select()
+            // select()
             character.stats.mp += character.items.potions.magicPotion.restore
             character.items.potions.magicPotion.quantity -= 1
             if (character.stats.mp > character.stats.maxMp) {
@@ -180,7 +182,7 @@ function animateMenuItems() {
             }, 1500)
         }
         else if (itemIndex === 3 && (character.stats.mp < character.stats.maxMp) && (character.items.potions.bigMagicPotion.quantity > 0)) {
-            select()
+            // select()
             character.stats.mp += character.items.potions.bigMagicPotion.restore
             character.items.potions.bigMagicPotion.quantity -= 1
             if (character.stats.mp > character.stats.maxMp) {
@@ -207,7 +209,7 @@ function animateMenuItems() {
     // Handles exiting of item screen
     window.addEventListener('keyup', (e) => {
         if (e.key === 'Escape') {
-			cancelSFX.play()
+			// cancelSFX.play()
             itemOpen = false
             itemsPane.children[itemIndex].className = 'menu-button'
             itemsPane.children[0].className = 'menu-button menu-hovered'
@@ -219,9 +221,9 @@ function animateMenuItems() {
         animateMenu()
     }
 
-    if (keyFiredEsc && keyActive === 'esc') {
-        keyFiredEsc = false
-        cancelSFX.play()
+    if (keyActive === 'escape') {
+        keyActive = ''
+        // cancelSFX.play()
         itemOpen = false
         itemsPane.children[itemIndex].className = 'menu-button'
         itemsPane.children[0].className = 'menu-button menu-hovered'
@@ -245,15 +247,15 @@ function animateStatus() {
 
     statusOpen = true
 
-    gamepadCheck()
+    // gamepadCheck()
     
     populateStats()
     document.querySelector('#menu').style.display = 'flex'
     document.querySelector('#save-alert').style.opacity = '0'
     document.querySelector('#player-stats').style.display = 'flex'
 
-    if (keyFiredEsc && keyActive === 'esc') {
-        keyFiredEsc = false
+    if (keyActive === 'escape') {
+        keyActive = ''
         window.cancelAnimationFrame(statusAnimationId)
         statusOpen = false
         document.querySelector('#player-stats').style.display = 'none'

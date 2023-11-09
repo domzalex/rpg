@@ -157,6 +157,9 @@ let itemIndex = 0
 let inBattle = false
 let winScreenState = ''
 let battleMenuIndex = 0
+let hoverToggler = {
+    index: 0
+}
 let battleItemMenuOpen = false
 let battleItemIndex = 0
 let battleEnd = false
@@ -167,13 +170,13 @@ let magicMenuIndex = 0
 let speedCheck = false
 let characterTurn = false
 let enemyTurn = false
-let keyFiredW = false
-let keyFiredA = false
-let keyFiredS = false
-let keyFiredD = false
-let keyFiredE = false
-let keyFiredEnter = false
-let keyFiredEsc = false
+// let keyFiredW = false
+// let keyFiredA = false
+// let keyFiredS = false
+// let keyFiredD = false
+// let keyFiredE = false
+// let keyFiredEnter = false
+// let keyFiredEsc = false
 let attacking = false
 let useMagic = false
 let frameCancel = false
@@ -406,6 +409,8 @@ function tallGrass() {
 // BATTLE CODE VARIABLES //
 
 const hpBarWidth = 70
+const battleItemMenu = document.querySelector('#battle-item-menu');
+const magicReq = document.querySelector('#magic-req');
 let fleeing
 let explosionToggle = false
 let magicType = null
@@ -420,174 +425,174 @@ let enemyChosen = false
 let levelChecked
 let readyMagicAnimation = false
 let superEffectiveText = ''
-const battleMenuPane = document.querySelector('#battle-pane')
-const battleMenu = document.querySelector('#battle-menu')
-const magicMenu = document.querySelector('#magic-menu')
+const battleMenuPane = document.querySelector('#battleMenuPane')
+const battleMenu = document.querySelector('#battleMenu')
+const magicMenu = document.querySelector('#magicMenu')
 let playerHealth = document.querySelector('#player-health')
 let playerMagic = document.querySelector('#player-magic')
 let battleAnimationId
 
 
-function gamepadCheck() {
-    const gamepad = navigator.getGamepads()[0]
-    if (gamepad && gamepad.connected) {
-        const axes = gamepad.axes
-        const buttons = gamepad.buttons
-        if (inDialog || shopMenuOpen || menuOpen || itemOpen || yesNo) {
-            if ((!keyFiredW && !keyFiredA && !keyFiredS && !keyFiredD && !keyFiredEnter && !keyFiredEsc) && keyActive == '') {
-                if (buttons[12].pressed) {
-                    keyFiredW = true
-                    keyActive = 'w'
-                }
-                if (buttons[13].pressed) {
-                    keyFiredS = true
-                    keyActive = 's'
-                }
-                if (buttons[14].pressed) {
-                    keyFiredA = true
-                    keyActive = 'a'
-                }
-                if (buttons[15].pressed) {
-                    keyFiredD = true
-                    keyActive = 'd'
-                }
-                if (buttons[1].pressed) {
-                    keyFiredEnter = true
-                    keyActive = 'enter'
-                }
-                if (buttons[0].pressed) {
-                    keyFiredEsc = true
-                    keyActive = 'esc'
-                }
-            }
-            if (!buttons[12].pressed && keyActive === 'w') {
-                keyFiredW = false
-                keyActive = ''
-            }
-            if (!buttons[13].pressed && keyActive === 's') {
-                keyFiredS = false
-                keyActive = ''
-            }
-            if (!buttons[14].pressed && keyActive === 'a') {
-                keyFiredA = false
-                keyActive = ''
-            }
-            if (!buttons[15].pressed && keyActive === 'd') {
-                keyFiredD = false
-                keyActive = ''
-            }
-            if (!buttons[1].pressed && keyActive === 'enter') {
-                keyFiredEnter = false
-                keyActive = ''
-            }
-            if (!buttons[0].pressed && keyActive === 'esc') {
-                keyFiredEsc = false
-                keyActive = ''
-            }
-        }
-        else if (!inDialog) {
-            if (gamepad.buttons[12].pressed || ((axes[1] < -0.75) && (axes[0] > -1))) {
+// function gamepadCheck() {
+//     const gamepad = navigator.getGamepads()[0]
+//     if (gamepad && gamepad.connected) {
+//         const axes = gamepad.axes
+//         const buttons = gamepad.buttons
+//         if (inDialog || shopMenuOpen || menuOpen || itemOpen || yesNo) {
+//             if ((!keyFiredW && !keyFiredA && !keyFiredS && !keyFiredD && !keyFiredEnter && !keyFiredEsc) && keyActive == '') {
+//                 if (buttons[12].pressed) {
+//                     keyFiredW = true
+//                     keyActive = 'w'
+//                 }
+//                 if (buttons[13].pressed) {
+//                     keyFiredS = true
+//                     keyActive = 's'
+//                 }
+//                 if (buttons[14].pressed) {
+//                     keyFiredA = true
+//                     keyActive = 'a'
+//                 }
+//                 if (buttons[15].pressed) {
+//                     keyFiredD = true
+//                     keyActive = 'd'
+//                 }
+//                 if (buttons[1].pressed) {
+//                     keyFiredEnter = true
+//                     keyActive = 'enter'
+//                 }
+//                 if (buttons[0].pressed) {
+//                     keyFiredEsc = true
+//                     keyActive = 'esc'
+//                 }
+//             }
+//             if (!buttons[12].pressed && keyActive === 'w') {
+//                 keyFiredW = false
+//                 keyActive = ''
+//             }
+//             if (!buttons[13].pressed && keyActive === 's') {
+//                 keyFiredS = false
+//                 keyActive = ''
+//             }
+//             if (!buttons[14].pressed && keyActive === 'a') {
+//                 keyFiredA = false
+//                 keyActive = ''
+//             }
+//             if (!buttons[15].pressed && keyActive === 'd') {
+//                 keyFiredD = false
+//                 keyActive = ''
+//             }
+//             if (!buttons[1].pressed && keyActive === 'enter') {
+//                 keyFiredEnter = false
+//                 keyActive = ''
+//             }
+//             if (!buttons[0].pressed && keyActive === 'esc') {
+//                 keyFiredEsc = false
+//                 keyActive = ''
+//             }
+//         }
+//         else if (!inDialog) {
+//             if (gamepad.buttons[12].pressed || ((axes[1] < -0.75) && (axes[0] > -1))) {
 
-                keyFiredW = true
-                keys.w.pressed = true
-                lastKey = 'w'
-                pressedKeys.push('w')
+//                 keyFiredW = true
+//                 keys.w.pressed = true
+//                 lastKey = 'w'
+//                 pressedKeys.push('w')
                 
-            } else {
+//             } else {
     
-                keyFiredW = false
-                keys.w.pressed = false
-                for (let i = 0; i < pressedKeys.length; i++) {
-                    if (pressedKeys[i] === 'w') {
-                        pressedKeys.splice(i, 1)
-                    }
-                }
+//                 keyFiredW = false
+//                 keys.w.pressed = false
+//                 for (let i = 0; i < pressedKeys.length; i++) {
+//                     if (pressedKeys[i] === 'w') {
+//                         pressedKeys.splice(i, 1)
+//                     }
+//                 }
     
-            }
-            if (gamepad.buttons[13].pressed || ((axes[1] > 0.75) && (axes[0] > -1))) {
+//             }
+//             if (gamepad.buttons[13].pressed || ((axes[1] > 0.75) && (axes[0] > -1))) {
                 
-                keyFiredS = true
-                keys.s.pressed = true
-                lastKey = 's'
-                pressedKeys.push('s')
+//                 keyFiredS = true
+//                 keys.s.pressed = true
+//                 lastKey = 's'
+//                 pressedKeys.push('s')
     
-            } else {
+//             } else {
     
-                keyFiredS = false
-                keys.s.pressed = false
-                for (let i = 0; i < pressedKeys.length; i++) {
-                    if (pressedKeys[i] === 's') {
-                        pressedKeys.splice(i, 1)
-                    }
-                }
+//                 keyFiredS = false
+//                 keys.s.pressed = false
+//                 for (let i = 0; i < pressedKeys.length; i++) {
+//                     if (pressedKeys[i] === 's') {
+//                         pressedKeys.splice(i, 1)
+//                     }
+//                 }
     
-            }
-            if (gamepad.buttons[14].pressed || ((axes[0] < -0.75) && (axes[1] < 0.75 && axes[1] > -0.75))) {
+//             }
+//             if (gamepad.buttons[14].pressed || ((axes[0] < -0.75) && (axes[1] < 0.75 && axes[1] > -0.75))) {
     
-                keyFiredA = true
-                keys.a.pressed = true
-                lastKey = 'a'
-                pressedKeys.push('a')
+//                 keyFiredA = true
+//                 keys.a.pressed = true
+//                 lastKey = 'a'
+//                 pressedKeys.push('a')
     
-            } else {
+//             } else {
     
-                keyFiredA = false
-                keys.a.pressed = false
-                for (let i = 0; i < pressedKeys.length; i++) {
-                    if (pressedKeys[i] === 'a') {
-                        pressedKeys.splice(i, 1)
-                    }
-                }
+//                 keyFiredA = false
+//                 keys.a.pressed = false
+//                 for (let i = 0; i < pressedKeys.length; i++) {
+//                     if (pressedKeys[i] === 'a') {
+//                         pressedKeys.splice(i, 1)
+//                     }
+//                 }
     
-            }
-            if (gamepad.buttons[15].pressed || (axes[0] > 0.75 && (axes[1] < 0.75 && axes[1] > -0.75))) {
+//             }
+//             if (gamepad.buttons[15].pressed || (axes[0] > 0.75 && (axes[1] < 0.75 && axes[1] > -0.75))) {
     
-                keyFiredD = true
-                keys.d.pressed = true
-                lastKey = 'd'
-                pressedKeys.push('d')
+//                 keyFiredD = true
+//                 keys.d.pressed = true
+//                 lastKey = 'd'
+//                 pressedKeys.push('d')
     
-            } else {
+//             } else {
     
-                keyFiredD = false
-                keys.d.pressed = false
-                for (let i = 0; i < pressedKeys.length; i++) {
-                    if (pressedKeys[i] === 'd') {
-                        pressedKeys.splice(i, 1)
-                    }
-                }
+//                 keyFiredD = false
+//                 keys.d.pressed = false
+//                 for (let i = 0; i < pressedKeys.length; i++) {
+//                     if (pressedKeys[i] === 'd') {
+//                         pressedKeys.splice(i, 1)
+//                     }
+//                 }
                 
-            }
-            if (!keyFiredEnter && keyActive === '') {
-                if (buttons[1].pressed) {
-                    keyFiredEnter = true
-                    keyActive = 'enter'
-                }
-            }
-            if (!buttons[1].pressed && keyActive === 'enter') {
-                keyFiredEnter = false
-                keyActive = ''
-            }
+//             }
+//             if (!keyFiredEnter && keyActive === '') {
+//                 if (buttons[1].pressed) {
+//                     keyFiredEnter = true
+//                     keyActive = 'enter'
+//                 }
+//             }
+//             if (!buttons[1].pressed && keyActive === 'enter') {
+//                 keyFiredEnter = false
+//                 keyActive = ''
+//             }
             
-        } 
+//         } 
 
 
 
 
 
-        if (!keyFiredE) {
-            if (gamepad.buttons[9].pressed) {
-                keyFiredE = true
-                if (menuOpen == false && !battle.initiated && !shopMenuOpen && !inDialog) {
-                    menuOpen = true
-                } else if (menuOpen == true && !itemOpen) {
-                    menuOpen = false
-                }
-            }
-        }
-        if (!gamepad.buttons[9].pressed) {
-            keyFiredE = false
-        }
+//         if (!keyFiredE) {
+//             if (gamepad.buttons[9].pressed) {
+//                 keyFiredE = true
+//                 if (menuOpen == false && !battle.initiated && !shopMenuOpen && !inDialog) {
+//                     menuOpen = true
+//                 } else if (menuOpen == true && !itemOpen) {
+//                     menuOpen = false
+//                 }
+//             }
+//         }
+//         if (!gamepad.buttons[9].pressed) {
+//             keyFiredE = false
+//         }
 
-    };
-}
+//     };
+// }

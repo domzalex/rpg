@@ -5,6 +5,33 @@
 /////////////////////////
 
 
+
+
+
+function hoverSelectToggle(item, toggler, index, addsub) {
+    item.children[toggler.index].className = `${item.id}Item`
+    switch (addsub) {
+        case 'plus' :
+            toggler.index += 1
+            break
+        case 'minus' :
+            toggler.index -= 1
+            break
+        case 'zero' :
+            toggler.index = 0
+            break
+        case '' :
+            toggler.index = index
+            break
+    }
+    item.children[toggler.index].className = `${item.id}Item ${item.id}ItemHovered`
+    return toggler[index]
+}
+
+
+
+
+
 function animate() {
 
     //begins the main animation event
@@ -43,10 +70,7 @@ function animate() {
 	// 	}
 	// }
 
-    gamepadCheck()
-
-    console.log(keyActive)
-
+    // gamepadCheck()
 
     //Logic for character movement, and collisions for both scene boundaries as well as battle zones
     const directions = ['w', 'a', 's', 'd']
@@ -117,7 +141,7 @@ function animate() {
                     stepCounter = 0
                     battle.initiated = true
                     inDialog = true
-                    [keyFiredW, keyFiredA, keyFiredS, keyFiredD] = [false, false, false, false]
+                    keyActive = ''
                     window.cancelAnimationFrame(animationId)
                     battlePlayer.image = playerIdleLeft
                     document.querySelector('#battle-transition').style.left = '0px'
@@ -129,7 +153,7 @@ function animate() {
                 }
             }
 
-        }
+        } 
     }
 
     //triggers the main menu to open

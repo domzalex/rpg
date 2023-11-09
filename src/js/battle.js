@@ -78,40 +78,33 @@ function damageCalc(magicType) {
     calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
     finalDamage = Math.round(calcDamage * character.equipment.weapon.attack)
     if (Math.random() < criticalChance) {
-		slashCrit()
+		// slashCrit()
         finalDamage = Math.round(calcDamage * criticalBoost)
-        battleMessage.innerHTML = 'Critical hit! You hit the ' + enemy.name + ' for ' + finalDamage + ' points of damage!'
+        battleMessage.innerHTML = `Critical hit! You hit the ${enemy.name} for ${finalDamage} points of damage!`
     } else {
-        slash()
+        // slash()
         battleMessage.innerHTML = `${superEffectiveText}You hit the ${enemy.name} for ${calcDamage} points of damage!`
     }
 }
 
-function moveEnemy(sprite) {
-
-    sprite.position.x += 15
-    setTimeout(() => {
-        sprite.position.x -= 30
-        setTimeout(() => {
-            sprite.position.x += 30
-            setTimeout(() => {
-                sprite.position.x -= 30
-                setTimeout(() => {
-                    sprite.position.x += 30
-                    setTimeout(() => {
-                        sprite.position.x -= 15
-                    }, 100)
-                }, 100)
-            }, 100)
-        }, 100)
-    }, 100)
-
-    if (enemy.health <= 0) {
-        setTimeout(() => {
-            fleeing = 'enemyTrue'
-        }, 850)
+function moveEnemy(sprite, steps) {
+    if (steps === undefined) {
+        steps = 6
     }
-	
+
+    if (steps === 0) {
+        if (enemy.health <= 0) {
+            setTimeout(() => {
+                fleeing = 'enemyTrue'
+            }, 850)
+        }
+        return
+    }
+
+    sprite.position.x += (steps % 2 === 0) ? -30 : 30
+    setTimeout(() => {
+        moveEnemy(sprite, steps - 1)
+    }, 100)
 }
 
 function playerAttack(magicType) {
@@ -171,9 +164,7 @@ function endBattle() {
         character.money = character.money + enemy.money
         battleMenu.style.display = 'none'
         battleMenuPane.style.display = 'none'
-        battleMenu.children[battleMenuIndex].className = 'battle-menu-item'
-        battleMenuIndex = 0
-        battleMenu.children[battleMenuIndex].className = 'battle-menu-item battle-menu-hovered'
+        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
         window.cancelAnimationFrame(battleAnimationId)
         winScreenState = 'rewards'
         if (Math.random() <= 0.15) {
@@ -193,9 +184,7 @@ function endBattle() {
         battleMenu.style.display = 'none'
         battleMenuPane.style.display = 'none'
         allowBattleMenuNav = false
-        battleMenu.children[battleMenuIndex].className = 'battle-menu-item'
-        battleMenuIndex = 0
-        battleMenu.children[battleMenuIndex].className = 'battle-menu-item battle-menu-hovered'
+        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
         window.cancelAnimationFrame(battleAnimationId)
         if (character.stats.hp <= 0) {
             loseScreen()
@@ -228,12 +217,12 @@ function enemyAttack() {
         }, 300)
 
         if (Math.random() < criticalChance) {
-            slashCrit()
+            // slashCrit()
             finalDamage = Math.round((finalDamage * criticalBoost) * character.equipment.armor.defense)
             character.stats.hp -= finalDamage
             battleMessage.innerHTML = 'Critical hit! The ' + enemy.name + ' hits for ' + finalDamage + ' points of damage!'
         } else {
-            slash()
+            // slash()
             character.stats.hp -= finalDamage
             battleMessage.innerHTML = `The ${enemy.name} attacks and deals ${finalDamage} points of damage!`
         }
@@ -264,8 +253,32 @@ function enemyAttack() {
     
 }
 
+// function checkLevelUp() {
+//     if (character.stats.exp >= character.stats.expToNext) {
+//         document.querySelector('#level-up-modal').style.display = 'flex'
+//         document.querySelector('#win-gains').style.display = "none"
+//         character.stats.lvl++
+//         character.stats.maxHp = Math.round(character.stats.maxHp * 1.1)
+//         character.stats.maxMp = Math.round(character.stats.maxMp * 1.1)
+//         character.stats.hp = character.stats.maxHp
+//         character.stats.mp = character.stats.maxMp
+//         character.stats.atk = Math.round(character.stats.atk * 1.1)
+//         character.stats.def = Math.round(character.stats.def * 1.1)
+//         character.stats.spd = Math.round(character.stats.spd * 1.1)
+//         character.stats.power = Math.round(character.stats.power * 1.1)
+//         character.stats.expToNext = Math.round(Math.pow(character.stats.lvl, 3))
+//         // character.stats.expToNext = Math.round(((6 / 5) * Math.pow(character.stats.lvl, 3)) - (15 * (Math.pow(character.stats.lvl, 2))) + (100 * character.stats.lvl) - 140)
+//         if (character.stats.exp >= character.stats.expToNext) {
+//             checkLevelUp()
+//         }
+//     } else {
+//         winScreenState = 'exit'
+//     }
+//     levelChecked = true
+// }
+
 function checkLevelUp() {
-    if (character.stats.exp >= character.stats.expToNext) {
+    while (character.stats.exp >= character.stats.expToNext) {
         document.querySelector('#level-up-modal').style.display = 'flex'
         document.querySelector('#win-gains').style.display = "none"
         character.stats.lvl++
@@ -278,14 +291,13 @@ function checkLevelUp() {
         character.stats.spd = Math.round(character.stats.spd * 1.1)
         character.stats.power = Math.round(character.stats.power * 1.1)
         character.stats.expToNext = Math.round(Math.pow(character.stats.lvl, 3))
-        // character.stats.expToNext = Math.round(((6 / 5) * Math.pow(character.stats.lvl, 3)) - (15 * (Math.pow(character.stats.lvl, 2))) + (100 * character.stats.lvl) - 140)
-        if (character.stats.exp >= character.stats.expToNext) {
-            checkLevelUp()
-        }
-    } else {
-        winScreenState = 'exit'
+
+        // Update 'expToNext' for the next level
+        character.stats.expToNext = Math.round(Math.pow(character.stats.lvl + 1, 3))
     }
-    levelChecked = true
+    if (character.stats.exp < character.stats.expToNext) {
+        levelChecked = true
+    }
 }
 
 function startBattle() {
@@ -330,7 +342,7 @@ function startBattle() {
 
     battleMenuPane.style.display = 'flex'
 
-    gamepadCheck()
+    // gamepadCheck()
 
     document.querySelector('#player-battle-health').innerHTML = `HP: ${character.stats.hp}`
     document.querySelector('#player-battle-magic').innerHTML = `MP: ${character.stats.mp}`
@@ -350,123 +362,179 @@ function startBattle() {
     } 
 
     if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
-        battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+        // battleMenu.children[hoverToggler.index].style.border = 'solid 5px white'
 			
-        if (keyActive === 'd' && !attacking && !keyCheck) {
-            keyActive = ''
-            if (battleMenuIndex < 3) {
-                blip()
-                battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                battleMenuIndex += 1
-                battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-            }
-        }
-
-        
-        if (keyActive === 'a' && !attacking && !keyCheck) {
-            keyActive = ''
-            if (battleMenuIndex > 0) {
-                blip()
-                battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                battleMenuIndex -= 1
-                battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+        if (!attacking) {
+            if (keyActive === 'd' && hoverToggler.index < 3) {
+                // blip()
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'plus')
+                keyActive = ''
+            } else if (keyActive === 'a' && hoverToggler.index > 0) {
+                // blip()
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'minus')
+                keyActive = ''
             }
         }
     }
 
+    // if (magicMenuOpen) {
+
+	// 	checkMagicReq()
+
+    //     document.querySelector('#battle-menu').style.display = 'none'
+    //     document.querySelector('#battle-item-menu').style.display = 'none'
+	// 	document.querySelector('#magic-menu').style.display = 'flex'
+    //     battleMenu.children[hoverToggler.index].style.border = 'solid 5px white'
+	// 	document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
+			
+    //     if (keyActive === 'd') {
+    //         keyActive = ''
+    //         if (magicMenuIndex < 2) {
+    //             blip()
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+    //             magicMenuIndex += 1
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+    //         }
+    //     }
+			
+    //     if (keyActive === 'a') {
+    //         keyActive = ''
+    //         if (magicMenuIndex > 0) {
+    //             blip()
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+    //             magicMenuIndex -= 1
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+    //         }
+    //     }
+    //     if (keyActive === 'enter' && !attacking) {
+    //         keyActive = ''
+    //         magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
+	// 		document.querySelector('#magic-req').innerHTML = ''
+
+    //         if (character.stats.mp >= magicType.mp) {
+	// 			select()
+    //             keyFiredEnter = false
+    //             magicMenu.style.display = 'none'
+    //             magicMenuOpen = false
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+    //             magicMenuIndex = 0
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+    //             playerAttack(magicType)
+    //         } else {
+    //             battleMessage.innerHTML = 'Not enough MP!'
+    //             battleMessage.style.display = 'flex'
+    //             setTimeout(() => {
+    //                 battleMessage.style.display = 'none'
+    //             }, 1500)
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+    //             magicMenuIndex = 0
+    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+    //         }
+
+	// 		checkMagicReq()
+            
+    //     }
+    //     window.addEventListener('keyup', (e) => {
+    //         if (e.key === 'Escape' && magicMenuOpen) {
+	//             cancelSFX.play()
+    //             magicMenuOpen = false
+    //         }
+    //     })
+    // } else {
+    //     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
+    //     magicMenuIndex = 0
+    //     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+    //     document.querySelector('#magic-menu').style.display = 'none'
+    // }
+
     if (magicMenuOpen) {
+        checkMagicReq()
+    
+        battleMenu.style.display = battleItemMenu.style.display = 'none'
+        magicMenu.style.display = 'flex'
+        magicReq.innerHTML = ` -${Object.values(character.magic)[hoverToggler.index].mp}MP`
 
-		checkMagicReq()
 
-        document.querySelector('#battle-menu').style.display = 'none'
-        document.querySelector('#battle-item-menu').style.display = 'none'
-		document.querySelector('#magic-menu').style.display = 'flex'
-        battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
-		document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
-			
-        if (keyActive === 'd') {
-            keyActive = ''
-            if (magicMenuIndex < 2) {
-                blip()
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                magicMenuIndex += 1
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+        if (!attacking) {
+            if (keyActive === 'd' && hoverToggler.index < 2) {
+                // blip()
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'plus')
+                keyActive = ''
+            } else if (keyActive === 'a' && hoverToggler.index > 0) {
+                // blip()
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'minus')
+                keyActive = ''
             }
         }
-			
-        if (keyActive === 'a') {
-            keyActive = ''
-            if (magicMenuIndex > 0) {
-                blip()
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                magicMenuIndex -= 1
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-            }
-        }
+
+    
+        // if (keyActive === 'd' || keyActive === 'a') {
+        //     if (hoverToggler.index >= 0 && hoverToggler.index < 2) {
+        //         magicMenuIndex = magicMenuIndex + (keyActive === 'd' ? 1 : -1)
+        //         // blip()
+        //         hoverSelectToggle(magicMenu, hoverToggler, magicMenuIndex, '')
+        //     }
+        //     keyActive = ''
+        // }
+    
         if (keyActive === 'enter' && !attacking) {
             keyActive = ''
-            magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
-			document.querySelector('#magic-req').innerHTML = ''
-
+            const magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
+            magicReq.innerHTML = ''
+    
             if (character.stats.mp >= magicType.mp) {
-				select()
-                keyFiredEnter = false
+                // select()
+                keyActive = ''
                 magicMenu.style.display = 'none'
                 magicMenuOpen = false
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                magicMenuIndex = 0
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
                 playerAttack(magicType)
             } else {
                 battleMessage.innerHTML = 'Not enough MP!'
                 battleMessage.style.display = 'flex'
-                setTimeout(() => {
-                    battleMessage.style.display = 'none'
-                }, 1500)
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-                magicMenuIndex = 0
-                document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
+                setTimeout(() => (battleMessage.style.display = 'none'), 1500)
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
             }
-
-			checkMagicReq()
-            
+    
+            checkMagicReq()
         }
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'Escape' && magicMenuOpen) {
-				cancelSFX.play()
-                magicMenuOpen = false
-            }
-        })
+    
+        // window.addEventListener('keyup', (e) => {
+        //     if (e.key === 'Escape' && magicMenuOpen) {
+        //         // cancelSFX.play()
+        //         magicMenuOpen = false
+        //     }
+        // })
     } else {
-        document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-        magicMenuIndex = 0
-        document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-        document.querySelector('#magic-menu').style.display = 'none'
+        // hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
+        magicMenu.style.display = 'none'
     }
+
+
     
     if (!magicMenuOpen && !battleItemMenuOpen) {
-        if (keyActive === 'enter' && !attacking && !keyCheck) {
+        if (keyActive === 'enter' && !attacking) {
             keyActive = ''
-			select()
-            if (battleMenuIndex === 0) {
+			// select()
+            if (hoverToggler.index === 0) {
                 playerAttack()
             }
-            else if (battleMenuIndex === 1) {
+            else if (hoverToggler.index === 1) {
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
                 magicMenuOpen = true
 				checkMagicReq()
             }
-            else if (battleMenuIndex === 2) {
+            else if (hoverToggler.index === 2) {
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
                 battleItemMenuOpen = true
             }
-            else if (battleMenuIndex === 3) {
+            else if (hoverToggler.index === 3) {
                 if (Math.random() > 0.10) {
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                    battleMenuIndex = 0
-                    battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+                    hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
                     characterTurn = false
                     enemyTurn = false
                     inDialog = false
-                    document.querySelector('#battle-menu').style.display = 'none'
+                    document.querySelector('#battleMenu').style.display = 'none'
                     battleMessage.innerHTML = 'Managed to escape!'
                     battleMessage.style.display = 'flex'
                     battlePlayer.image = playerRight
@@ -482,9 +550,7 @@ function startBattle() {
                     battleMessage.style.display = 'flex'
                     attacking = true
                     setTimeout(() => {
-                        battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-                        battleMenuIndex = 0
-                        battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+                        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
                         battleMessage.style.display = 'none'
                         attacking = false
                         characterTurn = false
@@ -494,9 +560,7 @@ function startBattle() {
                 }
             }
             setTimeout(() => {
-				battleMenu.children[battleMenuIndex].style.border = 'solid 5px transparent'
-				battleMenuIndex = 0
-				battleMenu.children[battleMenuIndex].style.border = 'solid 5px white'
+				hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
 			}, 60)
         }
     }
@@ -511,129 +575,168 @@ function startBattle() {
     //opens item menu in battle
     if (battleItemMenuOpen) {
 
-        document.querySelector('#battle-menu').style.display = 'none'
-        document.querySelector('#battle-item-menu').style.display = 'flex'
-		document.querySelector('#magic-menu').style.display = 'none'
-
-        document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
-
-        document.querySelectorAll('.potion')[0].innerHTML = `Health Potion<br>${character.items.potions.potion.quantity}`
-        document.querySelectorAll('.potion')[1].innerHTML = `Health Potion +<br>${character.items.potions.bigPotion.quantity}`
-        document.querySelectorAll('.potion')[2].innerHTML = `Magic Potion<br>${character.items.potions.magicPotion.quantity}`
-        document.querySelectorAll('.potion')[3].innerHTML = `Magic Potion +<br>${character.items.potions.bigMagicPotion.quantity}`
-
+        const menuElements = {
+            battleMenu: document.querySelector('#battleMenu'),
+            itemMenu: document.querySelector('#battleItemMenu'),
+            magicMenu: document.querySelector('#magicMenu'),
+            potions: document.querySelectorAll('.potion')
+        }
+        
+        menuElements.battleMenu.style.display = 'none'
+        menuElements.itemMenu.style.display = 'flex'
+        menuElements.magicMenu.style.display = 'none'
+        
+        menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px white'
+        
+        const potionTypes = ['potion', 'bigPotion', 'magicPotion', 'bigMagicPotion']
         let i = 0
-
-        document.querySelectorAll('.potion').forEach((item) => {
-            if (Object.values(character.items.potions)[i].quantity == 0) {
+        
+        menuElements.potions.forEach((item, index) => {
+            item.innerHTML = `${potionTypes[index].charAt(0).toUpperCase() + potionTypes[index].slice(1)}<br>${character.items.potions[potionTypes[index]].quantity}`
+            if (character.items.potions[potionTypes[index]].quantity === 0) {
                 item.style.opacity = 0.5
             }
-            i++
         })
+        
+        if (!keyCheck && (keyActive === 'd' || keyActive === 'a')) {
+            keyActive = ''
+            const direction = keyActive === 'd' ? 1 : -1
+            if (battleItemIndex + direction >= 0 && battleItemIndex + direction <= 3) {
+                // blip()
+                menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px transparent'
+                battleItemIndex += direction
+                menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px white'
+            }
+        }
 
-        if (!keyCheck && keyActive === 'd') {
+        // if (keyActive === 'enter') {
+        //     keyActive = ''
+        //     keyCheck = true
+		// 	select()
+        //     if (battleItemIndex == 0) {
+        //         if (character.items.potions.potion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
+        //             character.items.potions.potion.quantity--
+        //             character.stats.hp += character.items.potions.potion.restore
+        //             if (character.stats.hp > character.stats.maxHp) {
+        //                 character.stats.hp = character.stats.maxHp
+        //             }
+        //             battleMessage.innerHTML = 'HP has been restored!'
+        //             battleMessage.style.display = 'flex'
+        //             setTimeout(() => {
+        //                 itemUseEndTurn()
+        //             }, 1500)
+        //         } else {
+        //             if (character.items.potions.potion.quantity == 0) {
+        //                 battleMessage.innerHTML = 'You do not have any of these!'
+        //             } else if (character.stats.hp == character.stats.maxHp) {
+        //                 battleMessage.innerHTML = 'HP already at max!'
+        //             }
+        //             clearItemNoUseMessage()
+        //         }
+        //     } else if (battleItemIndex == 1) {
+        //         if (character.items.potions.bigPotion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
+        //             character.items.potions.bigPotion.quantity--
+        //             character.stats.hp += character.items.potions.bigPotion.restore
+        //             if (character.stats.hp > character.stats.maxHp) {
+        //                 character.stats.hp = character.stats.maxHp
+        //             }
+        //             battleMessage.innerHTML = 'HP has been restored!'
+        //             battleMessage.style.display = 'flex'
+        //             setTimeout(() => {
+        //                 itemUseEndTurn()
+        //             }, 1500)
+        //         } else {
+        //             if (character.items.potions.bigPotion.quantity == 0) {
+        //                 battleMessage.innerHTML = 'You do not have any of these!'
+        //             } else if (character.stats.hp == character.stats.maxHp) {
+        //                 battleMessage.innerHTML = 'HP already at max!'
+        //             }
+        //             clearItemNoUseMessage()
+        //         }
+        //     } else if (battleItemIndex == 2) {
+        //         if (character.items.potions.magicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
+        //             character.items.potions.magicPotion.quantity--
+        //             character.stats.mp += character.items.potions.magicPotion.restore
+        //             if (character.stats.mp > character.stats.maxMp) {
+        //                 character.stats.mp = character.stats.maxMp
+        //             }
+        //             battleMessage.innerHTML = 'MP has been restored!'
+        //             battleMessage.style.display = 'flex'
+        //             setTimeout(() => {
+        //                 itemUseEndTurn()
+        //             }, 1500)
+        //         } else {
+        //             if (character.items.potions.magicPotion.quantity == 0) {
+        //                 battleMessage.innerHTML = 'You do not have any of these!'
+        //             } else if (character.stats.mp == character.stats.maxMp) {
+        //                 battleMessage.innerHTML = 'MP already at max!'
+        //             }
+        //             clearItemNoUseMessage()
+        //         }
+        //     } else if (battleItemIndex == 3) {
+        //         if (character.items.potions.bigMagicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
+        //             character.items.potions.bigMagicPotion.quantity--
+        //             character.stats.mp += character.items.potions.bigMagicPotion.restore
+        //             if (character.stats.mp > character.stats.maxMp) {
+        //                 character.stats.mp = character.stats.maxMp
+        //             }
+        //             battleMessage.innerHTML = 'MP has been restored!'
+        //             battleMessage.style.display = 'flex'
+        //             setTimeout(() => {
+        //                 itemUseEndTurn()
+        //             }, 1500)
+        //         } else {
+        //             if (character.items.potions.bigMagicPotion.quantity == 0) {
+        //                 battleMessage.innerHTML = 'You do not have any of these!'
+        //             } else if (character.stats.mp == character.stats.maxMp) {
+        //                 battleMessage.innerHTML = 'MP already at max!'
+        //             }
+        //             clearItemNoUseMessage()
+        //         }
+        //     }
+        //     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
+        //     battleItemMenuOpen = false
+        //     battleItemIndex = 0
+        //     document.querySelector('#battle-item-menu').style.display = 'none'
+        // }
+
+        if (keyActive === 'enter') {
             keyActive = ''
-            if (battleItemIndex < 3) {
-                blip()
-                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-                battleItemIndex += 1
-                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
+            // select()
+        
+            const itemTypes = ['potion', 'bigPotion', 'magicPotion', 'bigMagicPotion']
+            const itemIndex = battleItemIndex
+            const item = character.items.potions[itemTypes[itemIndex]]
+        
+            if (item.quantity > 0) {
+                if ((itemIndex < 2 && character.stats.hp < character.stats.maxHp) ||
+                    (itemIndex >= 2 && character.stats.mp < character.stats.maxMp)) {
+                    item.quantity--
+                    const restoreValue = item.restore
+                    if (itemIndex < 2) {
+                        character.stats.hp += restoreValue
+                        if (character.stats.hp > character.stats.maxHp) {
+                            character.stats.hp = character.stats.maxHp
+                        }
+                        battleMessage.innerHTML = 'HP has been restored!'
+                    } else {
+                        character.stats.mp += restoreValue
+                        if (character.stats.mp > character.stats.maxMp) {
+                            character.stats.mp = character.stats.maxMp
+                        }
+                        battleMessage.innerHTML = 'MP has been restored!'
+                    }
+                    battleMessage.style.display = 'flex'
+                    setTimeout(itemUseEndTurn, 1500)
+                } else {
+                    battleMessage.innerHTML = (itemIndex < 2) ? 'HP already at max!' : 'MP already at max!'
+                    clearItemNoUseMessage()
+                }
+            } else {
+                battleMessage.innerHTML = 'You do not have any of these!'
+                clearItemNoUseMessage()
             }
-        }
-        if (!keyCheck && keyActive === 'a') {
-            keyActive = ''
-            if (battleItemIndex > 0) {
-                blip()
-                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-                battleItemIndex -= 1
-                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px white'
-            }
-        }
-        if (keyActive === 'enter' && !keyCheck) {
-            keyActive = ''
-            keyCheck = true
-			select()
-            if (battleItemIndex == 0) {
-                if (character.items.potions.potion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
-                    character.items.potions.potion.quantity--
-                    character.stats.hp += character.items.potions.potion.restore
-                    if (character.stats.hp > character.stats.maxHp) {
-                        character.stats.hp = character.stats.maxHp
-                    }
-                    battleMessage.innerHTML = 'HP has been restored!'
-                    battleMessage.style.display = 'flex'
-                    setTimeout(() => {
-                        itemUseEndTurn()
-                    }, 1500)
-                } else {
-                    if (character.items.potions.potion.quantity == 0) {
-                        battleMessage.innerHTML = 'You do not have any of these!'
-                    } else if (character.stats.hp == character.stats.maxHp) {
-                        battleMessage.innerHTML = 'HP already at max!'
-                    }
-                    clearItemNoUseMessage()
-                }
-            } else if (battleItemIndex == 1) {
-                if (character.items.potions.bigPotion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
-                    character.items.potions.bigPotion.quantity--
-                    character.stats.hp += character.items.potions.bigPotion.restore
-                    if (character.stats.hp > character.stats.maxHp) {
-                        character.stats.hp = character.stats.maxHp
-                    }
-                    battleMessage.innerHTML = 'HP has been restored!'
-                    battleMessage.style.display = 'flex'
-                    setTimeout(() => {
-                        itemUseEndTurn()
-                    }, 1500)
-                } else {
-                    if (character.items.potions.bigPotion.quantity == 0) {
-                        battleMessage.innerHTML = 'You do not have any of these!'
-                    } else if (character.stats.hp == character.stats.maxHp) {
-                        battleMessage.innerHTML = 'HP already at max!'
-                    }
-                    clearItemNoUseMessage()
-                }
-            } else if (battleItemIndex == 2) {
-                if (character.items.potions.magicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
-                    character.items.potions.magicPotion.quantity--
-                    character.stats.mp += character.items.potions.magicPotion.restore
-                    if (character.stats.mp > character.stats.maxMp) {
-                        character.stats.mp = character.stats.maxMp
-                    }
-                    battleMessage.innerHTML = 'MP has been restored!'
-                    battleMessage.style.display = 'flex'
-                    setTimeout(() => {
-                        itemUseEndTurn()
-                    }, 1500)
-                } else {
-                    if (character.items.potions.magicPotion.quantity == 0) {
-                        battleMessage.innerHTML = 'You do not have any of these!'
-                    } else if (character.stats.mp == character.stats.maxMp) {
-                        battleMessage.innerHTML = 'MP already at max!'
-                    }
-                    clearItemNoUseMessage()
-                }
-            } else if (battleItemIndex == 3) {
-                if (character.items.potions.bigMagicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
-                    character.items.potions.bigMagicPotion.quantity--
-                    character.stats.mp += character.items.potions.bigMagicPotion.restore
-                    if (character.stats.mp > character.stats.maxMp) {
-                        character.stats.mp = character.stats.maxMp
-                    }
-                    battleMessage.innerHTML = 'MP has been restored!'
-                    battleMessage.style.display = 'flex'
-                    setTimeout(() => {
-                        itemUseEndTurn()
-                    }, 1500)
-                } else {
-                    if (character.items.potions.bigMagicPotion.quantity == 0) {
-                        battleMessage.innerHTML = 'You do not have any of these!'
-                    } else if (character.stats.mp == character.stats.maxMp) {
-                        battleMessage.innerHTML = 'MP already at max!'
-                    }
-                    clearItemNoUseMessage()
-                }
-            }
+        
             document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
             battleItemMenuOpen = false
             battleItemIndex = 0
@@ -642,90 +745,74 @@ function startBattle() {
         
         window.addEventListener('keyup', (e) => {
             if (e.key === 'Escape' && battleItemMenuOpen) {
-				cancelSFX.play()
+				// cancelSFX.play()
                 battleItemMenuOpen = false
                 document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
                 battleItemIndex = 0
             }
         })
     } else {
-        document.querySelector('#battle-item-menu').style.display = 'none'
+        document.querySelector('#battleItemMenu').style.display = 'none'
     }
 
-    if (keyFiredEsc && keyActive === 'esc') {
-        keyFiredEsc = false
-        if (battleItemMenuOpen) {
-            cancelSFX.play()
-            battleItemMenuOpen = false
-            document.querySelector('#battle-menu').style.display = 'flex'
+    if (keyActive === 'escape') {
+        keyActive = ''
+        if (magicMenuOpen || battleItemMenuOpen) {
+            // cancelSFX.play()
+            document.querySelector('#battleMenu').style.display = 'flex'
             document.querySelector('#battle-item-menu').style.display = 'none'
-            document.querySelector('#magic-menu').style.display = 'none'
-            document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-            battleItemIndex = 0
-        }
-        if (magicMenuOpen) {
-            cancelSFX.play()
-            document.querySelector('#battle-menu').style.display = 'flex'
-            document.querySelector('#battle-item-menu').style.display = 'none'
-            document.querySelector('#magic-menu').style.display = 'none'
+            document.querySelector('#magicMenu').style.display = 'none'
             document.querySelector('#magic-req').innerHTML = ''
+            hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
             magicMenuOpen = false
+            battleItemMenuOpen = false
         }
     }
 
 }
 
 function winScreen() {
-
-    gamepadCheck()
-
+    const winScreenElement = document.querySelector('#win-screen')
+    const levelUpModalElement = document.querySelector('#level-up-modal')
+    const winGainsElement = document.querySelector('#win-gains')
     let winScreenAnimationId = window.requestAnimationFrame(winScreen)
-    document.querySelector('#win-screen').style.display = "flex"
-    if (winScreenState === 'rewards') {
-        document.querySelector('#level-up-modal').style.display = 'none'
-        document.querySelector('#win-gains').style.display = "flex"
-    }
-    if (winScreenState === 'levelup') {
-        document.querySelector('#level-up-modal').style.display = 'flex'
-        document.querySelector('#win-gains').style.display = "none"
-    }
+
+    winScreenElement.style.display = "flex"
+    levelUpModalElement.style.display = (winScreenState === 'levelup') ? 'flex' : 'none'
+    winGainsElement.style.display = (winScreenState === 'rewards') ? 'flex' : 'none'
+
     document.querySelector('#exp-gain').innerHTML = 'EXP Gained: ' + enemy.exp
     document.querySelector('#money-gain').innerHTML = 'Money Gained: ' + enemy.money
 
-    if (keyFiredEnter && keyActive === 'enter') {
+    if (keyActive === 'enter') {
+        keyActive = ''
         if (!levelChecked) {
-            keyFiredEnter = false
             winScreenState = 'levelup'
             checkLevelUp()
         } else {
-            document.querySelector('#level-up-modal').style.display = 'none'
-            document.querySelector('#win-gains').style.display = "none"
-            document.querySelector('#win-screen').style.display = "none"
-            battle.initiated = false
-            inDialog = false
-            window.cancelAnimationFrame(winScreenAnimationId)
-            animate()
+            winScreenCleanup(winScreenAnimationId)
         }
-    }   
-    if (winScreenState === 'exit') {
-        document.querySelector('#level-up-modal').style.display = 'none'
-        document.querySelector('#win-gains').style.display = "none"
-        document.querySelector('#win-screen').style.display = "none"
-        battle.initiated = false
-        inDialog = false
-        window.cancelAnimationFrame(winScreenAnimationId)
-        animate()
     }
+}
+
+function winScreenCleanup(animationId) {
+    document.querySelector('#level-up-modal').style.display = 'none'
+    document.querySelector('#win-gains').style.display = "none"
+    document.querySelector('#win-screen').style.display = "none"
+    battle.initiated = false
+    inDialog = false
+    window.cancelAnimationFrame(animationId)
+    animate()
 }
 
 function loseScreen() {
 
-    gamepadCheck()
+    // gamepadCheck()
 
     loseScreenAnimationId = window.requestAnimationFrame(loseScreen)
     document.querySelector('#lose-screen').style.display = "flex"
-    if (keyFiredEnter) {
-        keyFiredEnter = false
+    if (keyActive === 'enter') {
+        keyActive = ''
         document.querySelector('#lose-screen').style.display = "none"
         window.cancelAnimationFrame(loseScreenAnimationId)
 		battle.initiated = false
