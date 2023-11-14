@@ -89,10 +89,10 @@ const enemies = {
     0: {
         name: 'Neutral Slime',
         img: 'img/enemy-wind-weak-2.png',
-        hp: 3,
+        hp: 30,
         atk: 15,
         def: 60,
-        spd: 8,
+        spd: 80,
         exp: 70,
         money: 13,
         weakness: 'wind',
@@ -101,10 +101,10 @@ const enemies = {
     1: {
         name: 'Water Slime',
         img: 'img/enemy-lightning-weak-2.png',
-        hp: 5,
+        hp: 50,
         atk: 20,
         def: 35,
-        spd: 5,
+        spd: 50,
         exp: 100,
         money: 30,
         weakness: 'lightning',
@@ -113,10 +113,10 @@ const enemies = {
     2: {
         name: 'Grass Slime',
         img: 'img/enemy-fire-weak-2.png',
-        hp: 2,
+        hp: 20,
         atk: 25,
         def: 15,
-        spd: 2,
+        spd: 20,
         exp: 50,
         money: 15,
         weakness: 'fire',
@@ -162,6 +162,9 @@ let inBattle = false
 let winScreenState = ''
 let battleMenuIndex = 0
 let hoverToggler = {
+    index: 0
+}
+let opacityToggler = {
     index: 0
 }
 const winScreenElement = document.querySelector('#win-screen')

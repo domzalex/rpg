@@ -100,6 +100,19 @@ function moveEnemy(sprite, steps) {
     }, 100)
 }
 
+//this checks magic requirements and lowers opacity if unable to use
+function checkMagicReq() {
+    let index = 0
+    document.querySelectorAll('.magicMenuItem').forEach(element => {
+        if (character.stats.mp < Object.values(character.magic)[index].mp) {
+            element.style.opacity = '0.5'
+        } else {
+            element.style.opacity = '1'
+        }
+        index += 1
+    })
+}
+
 //once again attempting an async function given the multiple setTimeout calls.
 //seems top be a bit more readable but i'm not sure if it could be done more concisely 
 async function playerAttack(magicType) {
@@ -177,17 +190,13 @@ function enemyAttack() {
             battleMenu.style.display = 'flex'
             attacking = false
             characterTurn = true
-            
+            enemyTurn = false
             if (character.stats.hp <= 0) {
                 endBattle()
             }
-            attacking = false
-            enemyTurn = false
         }, 2500)
 
     }, 500)
-    
-    
 }
 
 //included bulk variable assigning (=,=,=,=,etc) but I am not sure if it's a good idea or not.
@@ -305,17 +314,7 @@ function loseScreen() {
 
 function startBattle() {
 
-	function checkMagicReq() {
-		let index = 0
-		document.querySelectorAll('.battle-magic').forEach(element => {
-			if (character.stats.mp < Object.values(character.magic)[index].mp) {
-				element.style.opacity = '0.5'
-			} else {
-				element.style.opacity = '1'
-			}
-			index += 1
-		})
-	}
+	
 
     battleWon = false
     levelChecked = false
@@ -348,16 +347,27 @@ function startBattle() {
     document.querySelector('#player-battle-health').innerHTML = `HP: ${character.stats.hp}`
     document.querySelector('#player-battle-magic').innerHTML = `MP: ${character.stats.mp}`
 
-    if (!speedCheck) {
-        speedCheck = true
-        if (character.stats.spd > enemy.spd) {
-            characterTurn = true
-        } else {
-            enemyTurn = true
-			enemyAttack()
+    // if (!speedCheck) {
+    //     speedCheck = true
+    //     if (character.stats.spd > enemy.spd) {
+    //         characterTurn = true
+    //     } else {
+    //         enemyTurn = true
+	// 		enemyAttack()
+    //     }
+    // }
+
+    //combining the conditionals into a single one and attempting to see how it looks to have characterTurn be set to the condition
+    if (!speedCheck && (characterTurn = character.stats.spd > enemy.spd)) {
+        enemyTurn = !characterTurn;
+        console.log(enemyTurn)
+        if (enemyTurn) {
+            enemyAttack();
         }
+        speedCheck = true;
     }
 
+    //handles selection/hover states for the main battle menu
     if (!magicMenuOpen && !battleItemMenuOpen && !attacking) {	
         if (!attacking) {
             if (keyActive === 'd' && hoverToggler.index < 3) {
@@ -372,6 +382,7 @@ function startBattle() {
         }
     }
 
+    //opens magic attack menu in battle
     if (magicMenuOpen) {
         checkMagicReq()
     
@@ -515,7 +526,7 @@ function startBattle() {
             else if (hoverToggler.index === 1) {
                 hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
                 magicMenuOpen = true
-				checkMagicReq()
+				// checkMagicReq()
             }
             else if (hoverToggler.index === 2) {
                 hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
