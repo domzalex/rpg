@@ -57,7 +57,7 @@ class Sprite {
             this.frames.elapsed++
         }
 
-        if (this.frames.elapsed % 6 === 0) {
+        if (this.frames.elapsed % this.frames.max === 0) {
             if (this.frames.val < this.frames.max - 1) this.frames.val++
             else this.frames.val = 0
         }
@@ -73,7 +73,7 @@ class Boundary {
         this.height = 5
     }
     draw() {
-        ctx.fillStyle = 'rgba(255,0,0,0)'
+        ctx.fillStyle = 'rgba(255,0,0,1)'
         ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 }

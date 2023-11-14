@@ -63,19 +63,23 @@ let character = {
         potions: {
             potion: {
                 quantity: 1,
-                restore: 30
+                restore: 30,
+                name: 'Potion'
             },
             bigPotion: {
                 quantity: 0,
-                restore: 100
+                restore: 100,
+                name: 'Potion +'
             },
             magicPotion: {
                 quantity: 0,
-                restore: 20
+                restore: 20,
+                name: 'Magic Potion'
             },
             bigMagicPotion: {
                 quantity: 1,
-                restore: 50
+                restore: 50,
+                name: 'Magic Potion +'
             }
         }
     }
@@ -160,6 +164,9 @@ let battleMenuIndex = 0
 let hoverToggler = {
     index: 0
 }
+const winScreenElement = document.querySelector('#win-screen')
+const levelUpModalElement = document.querySelector('#level-up-modal')
+const winGainsElement = document.querySelector('#win-gains')
 let battleItemMenuOpen = false
 let battleItemIndex = 0
 let battleEnd = false
@@ -409,7 +416,7 @@ function tallGrass() {
 // BATTLE CODE VARIABLES //
 
 const hpBarWidth = 70
-const battleItemMenu = document.querySelector('#battle-item-menu');
+const battleItemMenu = document.querySelector('#battleItemMenu');
 const magicReq = document.querySelector('#magic-req');
 let fleeing
 let explosionToggle = false

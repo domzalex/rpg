@@ -7,9 +7,9 @@
 
 
 
-
-function hoverSelectToggle(item, toggler, index, addsub) {
-    item.children[toggler.index].className = `${item.id}Item`
+//this handles repetitive changing of hover states on all sorts of elements.
+function hoverSelectToggle(item, toggler, index, addsub, cls) {
+    item.children[toggler.index].className = `${cls}`
     switch (addsub) {
         case 'plus' :
             toggler.index += 1
@@ -24,13 +24,9 @@ function hoverSelectToggle(item, toggler, index, addsub) {
             toggler.index = index
             break
     }
-    item.children[toggler.index].className = `${item.id}Item ${item.id}ItemHovered`
+    item.children[toggler.index].className = `${cls} hovered`
     return toggler[index]
 }
-
-
-
-
 
 function animate() {
 
@@ -147,6 +143,9 @@ function animate() {
                     document.querySelector('#battle-transition').style.left = '0px'
                     setTimeout(() => {
                         document.querySelector('#battle-transition').style.left = '-1280px'
+                        setTimeout(() => {
+                            document.querySelector('#battle-transition').style.opacity = '0'
+                        }, 1500)
                     }, 1000)
                     setTimeout(startBattle, 1000)
                     break

@@ -1,3 +1,10 @@
+//async delay function to be used for any of my async/await setTimeout calls
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+//no changes with this function since it works fine and seems straightfoward as is.
+//may need to be refactored once enemies get more complex
 function chooseEnemy() {
     const chosenEnemy = enemies[Math.floor(Math.random() * Object.keys(enemies).length)]
     // const chosenEnemy = enemies[2]
@@ -16,77 +23,63 @@ function chooseEnemy() {
     document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
 }
 
-
-function itemUseEndTurn() {
+//tried an async function. is it better? idk
+async function itemUseEndTurn() {
     battleMessage.innerHTML = ''
-    setTimeout(() => {
-        battleMessage.style.display = 'none'
-        setTimeout(() => {
-            keyCheck = false
-        }, 100)
-        characterTurn = false
-        enemyTurn = true
-        enemyAttack()
-    }, 500)
+
+    await delay(500)
+    battleMessage.style.display = 'none'
+    characterTurn = false
+    enemyTurn = true
+    enemyAttack()
 }
+
+//removed the keyCheck since it's no longer needed. keeping setTimeout as reference and for
+//deciding if it's more/less readable than the async/await with delay() function
 function clearItemNoUseMessage() {
     battleMessage.style.display = 'flex'
     setTimeout(() => {
-        battleMessage.style.display = 'none'
         battleMessage.innerHTML = ''
-        setTimeout(() => {
-            keyCheck = false
-        }, 100)
+        battleMenu.style.display = 'flex'
     }, 1500)
 }
 
-
-function resetAttackAnimation() {
-    basicAttack.moving = false
-    basicAttack.frames.val = 0
-	basicEnemyAttack.moving = false
-    basicEnemyAttack.frames.val = 0
-}
+//changed to use ternary operators
 function attackAnimation() {
-	if (characterTurn) {
-		basicAttack.moving = true
-	}
-	if (enemyTurn) {
-		basicEnemyAttack.moving = true
-	}
+    characterTurn ? (basicAttack.moving = true) : (basicEnemyAttack.moving = true)
 }
 
+//changed to use as argument passed to tell whether it's the chracter or the enemy that attacked
+function resetAttackAnimation(entity) {
+    entity.moving = false
+    entity.frames.val = 0
+}
+
+//changed to use returns to break out if conditions aren't met. also used a ternary operator
 function damageCalc(magicType) {
-    if (magicType == null) {
-        magicMultiplier = 1
-    } else {
-        if (character.stats.mp >= magicType.mp) {
-            character.stats.mp -= magicType.mp
-            magicMultiplier = magicType.power
-            if (magicType.name == enemy.weakness) {
-                superEffectiveText = 'Super effective! '
-                magicWeaknessBoost = 2
-            } else {
-                magicWeaknessBoost = 1
-            }
-        } else {
-            alert('not enough MP')
+    if (magicType) {
+        if (character.stats.mp < magicType.mp) {
+            alert('Not enough MP')
+            return
         }
-        
+        character.stats.mp -= magicType.mp
+        magicMultiplier = magicType.power
+        magicWeaknessBoost = magicType.name == enemy.weakness ? 2 : 1
     }
+
     baseDamage = Math.round((((((((2 * character.stats.lvl) / 5) + 2) * ((character.stats.power * magicMultiplier) * (character.stats.atk / enemy.def))) / 50) + 2) * magicWeaknessBoost))
     calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
     finalDamage = Math.round(calcDamage * character.equipment.weapon.attack)
+
     if (Math.random() < criticalChance) {
-		// slashCrit()
         finalDamage = Math.round(calcDamage * criticalBoost)
         battleMessage.innerHTML = `Critical hit! You hit the ${enemy.name} for ${finalDamage} points of damage!`
     } else {
-        // slash()
-        battleMessage.innerHTML = `${superEffectiveText}You hit the ${enemy.name} for ${calcDamage} points of damage!`
+        battleMessage.innerHTML = `${magicType && magicType.name == enemy.weakness ? 'Super effective! ' : ''}You hit the ${enemy.name} for ${calcDamage} points of damage!`
     }
 }
 
+//changed to utilize a step function rather than multiple nested setTimeouts
 function moveEnemy(sprite, steps) {
     if (steps === undefined) {
         steps = 6
@@ -107,97 +100,41 @@ function moveEnemy(sprite, steps) {
     }, 100)
 }
 
-function playerAttack(magicType) {
+//once again attempting an async function given the multiple setTimeout calls.
+//seems top be a bit more readable but i'm not sure if it could be done more concisely 
+async function playerAttack(magicType) {
     attacking = true
     magicMultiplier = 1
     magicWeaknessBoost = 1
     battleMenu.style.display = 'none'
 
-	setTimeout(() => {
-		attackAnimation()
-		damageCalc(magicType)
-		enemy.health -= finalDamage
-	}, 500)
+    await delay(500)
+    attackAnimation()
+    damageCalc(magicType)
+    enemy.health -= finalDamage
 
-	setTimeout(() => {
-		moveEnemy(enemy)
-	}, 800)
+    await delay(300)
+    moveEnemy(enemy)
 
-    setTimeout(() => {
-		
-        battleMessage.style.display = 'flex'
-        if (enemy.health <= 0) {
-            document.querySelector('#enemy-health').style.width = '0px'
-        } else {
-            document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
-        }
-		resetAttackAnimation()
-		
-    }, 1500)
-	
-    
+    await delay(700)
+    battleMessage.style.display = 'flex'
+    document.querySelector('#enemy-health').style.width = (enemy.health <= 0) ? '0px' : `${(enemy.health / enemy.maxHp) * 70}px`
+    resetAttackAnimation(basicAttack)
+
     superEffectiveText = ''
-    setTimeout(() => {
-        battleMessage.style.display = 'none'
-        if (enemy.health <= 0) {
-            battleWon = true
-            // attacking = false
-            endBattle()
-            fleeing = ''
-            enemy.position.x = 355
-        } else {
-			attacking = false
-			characterTurn = false
-            enemyTurn = true
-			enemyAttack()
-        }
-    }, 3500)
-    
-}
 
-function endBattle() {
-    attacking = false
-    enemyChosen = false
-    characterTurn = false
-    if (battleWon) {
-        character.stats.exp = character.stats.exp + enemy.exp
-        character.money = character.money + enemy.money
-        battleMenu.style.display = 'none'
-        battleMenuPane.style.display = 'none'
-        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
-        window.cancelAnimationFrame(battleAnimationId)
-        winScreenState = 'rewards'
-        if (Math.random() <= 0.15) {
-            document.querySelector('#item-drop').innerHTML = `The ${enemy.name} dropped a ${enemy.drop}`
-            if (enemy.drop == 'potion') {
-                character.items.potions.potion.quantity += 1
-            } else if (enemy.drop == 'magicPotion') {
-                character.items.potions.magicPotion.quantity += 1
-            }
-        } else {
-            document.querySelector('#item-drop').innerHTML = ''
-        }
-        winScreen()
-        speedCheck = false
-        battleEnd = false
+    await delay(2000)
+    battleMessage.style.display = 'none'
+    if (enemy.health <= 0) {
+        battleWon = true
+        endBattle()
+        fleeing = ''
+        enemy.position.x = 355
     } else {
-        battleMenu.style.display = 'none'
-        battleMenuPane.style.display = 'none'
-        allowBattleMenuNav = false
-        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
-        window.cancelAnimationFrame(battleAnimationId)
-        if (character.stats.hp <= 0) {
-            loseScreen()
-        } else {
-            animate()
-        }
-        speedCheck = false
-        battleEnd = false
-        battle.initiated = false
-        if (character.stats.hp <= 0) {
-            character.stats.hp = character.stats.maxHp
-            character.stats.mp = character.stats.maxMp
-        }
+        attacking = false
+        characterTurn = false
+        enemyTurn = true
+        enemyAttack()
     }
 }
 
@@ -232,7 +169,7 @@ function enemyAttack() {
 
         setTimeout(() => {
             battleMessage.style.display = 'flex'
-            resetAttackAnimation()
+            resetAttackAnimation(basicEnemyAttack)
         }, 1000)
 
         setTimeout(() => {
@@ -253,33 +190,46 @@ function enemyAttack() {
     
 }
 
-// function checkLevelUp() {
-//     if (character.stats.exp >= character.stats.expToNext) {
-//         document.querySelector('#level-up-modal').style.display = 'flex'
-//         document.querySelector('#win-gains').style.display = "none"
-//         character.stats.lvl++
-//         character.stats.maxHp = Math.round(character.stats.maxHp * 1.1)
-//         character.stats.maxMp = Math.round(character.stats.maxMp * 1.1)
-//         character.stats.hp = character.stats.maxHp
-//         character.stats.mp = character.stats.maxMp
-//         character.stats.atk = Math.round(character.stats.atk * 1.1)
-//         character.stats.def = Math.round(character.stats.def * 1.1)
-//         character.stats.spd = Math.round(character.stats.spd * 1.1)
-//         character.stats.power = Math.round(character.stats.power * 1.1)
-//         character.stats.expToNext = Math.round(Math.pow(character.stats.lvl, 3))
-//         // character.stats.expToNext = Math.round(((6 / 5) * Math.pow(character.stats.lvl, 3)) - (15 * (Math.pow(character.stats.lvl, 2))) + (100 * character.stats.lvl) - 140)
-//         if (character.stats.exp >= character.stats.expToNext) {
-//             checkLevelUp()
-//         }
-//     } else {
-//         winScreenState = 'exit'
-//     }
-//     levelChecked = true
-// }
+//included bulk variable assigning (=,=,=,=,etc) but I am not sure if it's a good idea or not.
+//also included ternary operator again, and attempted to streamline the conditionals
+function endBattle() {
+    attacking = enemyChosen = speedCheck = battleEnd = characterTurn = battle.initiated = false;
+
+    if (battleWon) {
+        character.stats.exp += enemy.exp;
+        character.money += enemy.money;
+        battleMenu.style.display = battleMenuPane.style.display = 'none';
+        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem');
+        window.cancelAnimationFrame(battleAnimationId);
+        winScreenState = 'rewards';
+
+        const dropChance = Math.random();
+        document.querySelector('#item-drop').innerHTML = dropChance <= 0.15 ? `The ${enemy.name} dropped a ${enemy.drop}` : '';
+        if (dropChance <= 0.15) {
+            character.items.potions[enemy.drop].quantity += 1;
+        }
+
+        document.querySelector('#battle-transition').style.left = '0px';
+        winScreen();
+    } else {
+        battleMenu.style.display = battleMenuPane.style.display = 'none';
+        allowBattleMenuNav = false;
+        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem');
+        window.cancelAnimationFrame(battleAnimationId);
+
+        if (character.stats.hp <= 0) {
+            character.stats.hp = character.stats.maxHp;
+            character.stats.mp = character.stats.maxMp;
+            loseScreen();
+        } else {
+            animate();
+        }
+    }
+}
 
 function checkLevelUp() {
     while (character.stats.exp >= character.stats.expToNext) {
-        document.querySelector('#level-up-modal').style.display = 'flex'
+        winScreenState = 'levelup'
         document.querySelector('#win-gains').style.display = "none"
         character.stats.lvl++
         character.stats.maxHp = Math.round(character.stats.maxHp * 1.1)
@@ -295,9 +245,62 @@ function checkLevelUp() {
         // Update 'expToNext' for the next level
         character.stats.expToNext = Math.round(Math.pow(character.stats.lvl + 1, 3))
     }
-    if (character.stats.exp < character.stats.expToNext) {
-        levelChecked = true
+}
+
+function winScreen() {
+    let winScreenAnimationId = window.requestAnimationFrame(winScreen)
+
+    battleMenu.style.display = 'flex'
+    winScreenElement.style.display = "flex"
+    levelUpModalElement.style.display = (winScreenState === 'levelup') ? 'flex' : 'none'
+    winGainsElement.style.display = (winScreenState === 'rewards') ? 'flex' : 'none'
+
+    document.querySelector('#exp-gain').innerHTML = 'EXP Gained: ' + enemy.exp
+    document.querySelector('#money-gain').innerHTML = 'Money Gained: ' + enemy.money
+
+    if (keyActive === 'enter') {
+        keyActive = ''
+        if (character.stats.exp >= character.stats.expToNext) {
+            checkLevelUp()
+        } else {
+            winScreenCleanup(winScreenAnimationId)
+        }
     }
+}
+
+function winScreenCleanup(animationId) {
+    window.cancelAnimationFrame(animationId)
+    document.querySelector('#battle-transition').style.opacity = '1'
+    setTimeout(() => {
+        document.querySelector('#battle-transition').style.opacity = '0'
+        document.querySelector('#level-up-modal').style.display = 'none'
+        document.querySelector('#win-gains').style.display = "none"
+        document.querySelector('#win-screen').style.display = "none"
+        battle.initiated = false
+        inDialog = false
+        setTimeout(() => {
+            document.querySelector('#battle-transition').style.left = '-1280px'
+            setTimeout(() => {
+                document.querySelector('#battle-transition').style.opacity = '1'
+            }, 1000)
+        }, 1500)
+        animate()
+    }, 1000)
+}
+
+function loseScreen() {
+    loseScreenAnimationId = window.requestAnimationFrame(loseScreen)
+
+    battleMenu.style.display = 'flex'
+    document.querySelector('#lose-screen').style.display = "flex"
+    if (keyActive === 'enter') {
+        keyActive = ''
+        document.querySelector('#lose-screen').style.display = "none"
+        window.cancelAnimationFrame(loseScreenAnimationId)
+		battle.initiated = false
+        inDialog = false
+        animate()
+    }   
 }
 
 function startBattle() {
@@ -322,23 +325,21 @@ function startBattle() {
         enemyChosen = true
     }
 
-    allowBattleMenuNav = true
-
     battleAnimationId = window.requestAnimationFrame(startBattle)
+
     battleBackground.draw()
-    
     battlePlayer.draw()
     enemy.draw()
 
-    enemy.moving = true
-    battlePlayer.moving = true
+    //changed to one if statement to handle basic attack animations. will likely need changing once more animations are made
+    if (basicAttack.moving || basicEnemyAttack.moving) {
+        basicAttack.moving && basicAttack.draw();
+        basicEnemyAttack.moving && basicEnemyAttack.draw();
+    }
 
-    if (fleeing === 'playerTrue') {
-        battlePlayer.position.x += 8
-    }
-    if (fleeing === 'enemyTrue') {
-        enemy.position.x -= 8
-    }
+    //one-liner for handling the enemy/player fleeing animations
+    (fleeing === 'playerTrue') ? (battlePlayer.position.x += 8) : (fleeing === 'enemyTrue' && (enemy.position.x -= 8))
+
 
     battleMenuPane.style.display = 'flex'
 
@@ -357,160 +358,152 @@ function startBattle() {
         }
     }
 
-    if (characterTurn && !attacking) {
-        battleMenu.style.display = 'flex'
-    } 
-
-    if (allowBattleMenuNav && !magicMenuOpen && !battleItemMenuOpen && !attacking) {
-        // battleMenu.children[hoverToggler.index].style.border = 'solid 5px white'
-			
+    if (!magicMenuOpen && !battleItemMenuOpen && !attacking) {	
         if (!attacking) {
             if (keyActive === 'd' && hoverToggler.index < 3) {
                 // blip()
-                hoverSelectToggle(battleMenu, hoverToggler, index, 'plus')
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'plus', 'battleMenuItem')
                 keyActive = ''
             } else if (keyActive === 'a' && hoverToggler.index > 0) {
                 // blip()
-                hoverSelectToggle(battleMenu, hoverToggler, index, 'minus')
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'minus', 'battleMenuItem')
                 keyActive = ''
             }
         }
     }
 
-    // if (magicMenuOpen) {
-
-	// 	checkMagicReq()
-
-    //     document.querySelector('#battle-menu').style.display = 'none'
-    //     document.querySelector('#battle-item-menu').style.display = 'none'
-	// 	document.querySelector('#magic-menu').style.display = 'flex'
-    //     battleMenu.children[hoverToggler.index].style.border = 'solid 5px white'
-	// 	document.querySelector('#magic-req').innerHTML = ` -${Object.values(character.magic)[magicMenuIndex].mp}MP`
-			
-    //     if (keyActive === 'd') {
-    //         keyActive = ''
-    //         if (magicMenuIndex < 2) {
-    //             blip()
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-    //             magicMenuIndex += 1
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-    //         }
-    //     }
-			
-    //     if (keyActive === 'a') {
-    //         keyActive = ''
-    //         if (magicMenuIndex > 0) {
-    //             blip()
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-    //             magicMenuIndex -= 1
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-    //         }
-    //     }
-    //     if (keyActive === 'enter' && !attacking) {
-    //         keyActive = ''
-    //         magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
-	// 		document.querySelector('#magic-req').innerHTML = ''
-
-    //         if (character.stats.mp >= magicType.mp) {
-	// 			select()
-    //             keyFiredEnter = false
-    //             magicMenu.style.display = 'none'
-    //             magicMenuOpen = false
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-    //             magicMenuIndex = 0
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-    //             playerAttack(magicType)
-    //         } else {
-    //             battleMessage.innerHTML = 'Not enough MP!'
-    //             battleMessage.style.display = 'flex'
-    //             setTimeout(() => {
-    //                 battleMessage.style.display = 'none'
-    //             }, 1500)
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-    //             magicMenuIndex = 0
-    //             document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-    //         }
-
-	// 		checkMagicReq()
-            
-    //     }
-    //     window.addEventListener('keyup', (e) => {
-    //         if (e.key === 'Escape' && magicMenuOpen) {
-	//             cancelSFX.play()
-    //             magicMenuOpen = false
-    //         }
-    //     })
-    // } else {
-    //     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px transparent'
-    //     magicMenuIndex = 0
-    //     document.querySelector('#magic-menu').children[magicMenuIndex].style.border = 'solid 5px white'
-    //     document.querySelector('#magic-menu').style.display = 'none'
-    // }
-
     if (magicMenuOpen) {
         checkMagicReq()
     
-        battleMenu.style.display = battleItemMenu.style.display = 'none'
+        battleMenu.style.display = 'none'
         magicMenu.style.display = 'flex'
         magicReq.innerHTML = ` -${Object.values(character.magic)[hoverToggler.index].mp}MP`
-
 
         if (!attacking) {
             if (keyActive === 'd' && hoverToggler.index < 2) {
                 // blip()
-                hoverSelectToggle(magicMenu, hoverToggler, index, 'plus')
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'plus', 'magicMenuItem')
                 keyActive = ''
             } else if (keyActive === 'a' && hoverToggler.index > 0) {
                 // blip()
-                hoverSelectToggle(magicMenu, hoverToggler, index, 'minus')
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'minus', 'magicMenuItem')
                 keyActive = ''
             }
         }
-
-    
-        // if (keyActive === 'd' || keyActive === 'a') {
-        //     if (hoverToggler.index >= 0 && hoverToggler.index < 2) {
-        //         magicMenuIndex = magicMenuIndex + (keyActive === 'd' ? 1 : -1)
-        //         // blip()
-        //         hoverSelectToggle(magicMenu, hoverToggler, magicMenuIndex, '')
-        //     }
-        //     keyActive = ''
-        // }
     
         if (keyActive === 'enter' && !attacking) {
             keyActive = ''
-            const magicType = character.magic[Object.keys(character.magic)[magicMenuIndex]]
+            const magicType = character.magic[Object.keys(character.magic)[hoverToggler.index]]
             magicReq.innerHTML = ''
     
             if (character.stats.mp >= magicType.mp) {
                 // select()
-                keyActive = ''
                 magicMenu.style.display = 'none'
                 magicMenuOpen = false
-                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero', 'magicMenuItem')
                 playerAttack(magicType)
             } else {
                 battleMessage.innerHTML = 'Not enough MP!'
                 battleMessage.style.display = 'flex'
                 setTimeout(() => (battleMessage.style.display = 'none'), 1500)
-                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
+                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero', 'magicMenuItem')
             }
-    
             checkMagicReq()
         }
-    
-        // window.addEventListener('keyup', (e) => {
-        //     if (e.key === 'Escape' && magicMenuOpen) {
-        //         // cancelSFX.play()
-        //         magicMenuOpen = false
-        //     }
-        // })
-    } else {
-        // hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
-        magicMenu.style.display = 'none'
+
+        if (keyActive === 'escape') {
+            keyActive = ''
+            // cancelSFX.play()
+            document.querySelector('#battleMenu').style.display = 'flex'
+            document.querySelector('#magicMenu').style.display = 'none'
+            document.querySelector('#magic-req').innerHTML = ''
+            magicMenuOpen = false
+            hoverSelectToggle(magicMenu, hoverToggler, index, 'zero', 'magicMenuItem')
+        }
+
     }
 
+    //opens item menu in battle
+    if (battleItemMenuOpen) {
 
+        let potions = document.querySelectorAll('.potion')
+
+        battleMenu.style.display = 'none'
+        battleItemMenu.style.display = 'flex'
+        
+        const potionTypes = ['potion', 'bigPotion', 'magicPotion', 'bigMagicPotion']
+        
+        potions.forEach((item, index) => {
+            item.innerHTML = `${character.items.potions[potionTypes[index]].name}<br>${character.items.potions[potionTypes[index]].quantity}`
+            if (character.items.potions[potionTypes[index]].quantity === 0) {
+                item.style.opacity = 0.5
+            }
+        })
+
+        if (!attacking) {
+            if (keyActive === 'd' && hoverToggler.index < 3) {
+                // blip()
+                hoverSelectToggle(battleItemMenu, hoverToggler, index, 'plus', 'potion battleItemMenuItem')
+                keyActive = ''
+            } else if (keyActive === 'a' && hoverToggler.index > 0) {
+                // blip()
+                hoverSelectToggle(battleItemMenu, hoverToggler, index, 'minus', 'potion battleItemMenuItem')
+                keyActive = ''
+            }
+        }
+
+        if (keyActive === 'enter') {
+            keyActive = ''
+            // select()
+
+            battleItemMenu.style.display = 'none'
+            battleMenu.style.display = 'none'
+
+            const item = character.items.potions[potionTypes[hoverToggler.index]]
+
+            if (item.quantity > 0) {
+                if ((hoverToggler.index < 2 && character.stats.hp < character.stats.maxHp) ||
+                    (hoverToggler.index >= 2 && character.stats.mp < character.stats.maxMp)) {
+                    item.quantity--
+                    const restoreValue = item.restore
+                    if (hoverToggler.index < 2) {
+                        character.stats.hp += restoreValue
+                        if (character.stats.hp > character.stats.maxHp) {
+                            character.stats.hp = character.stats.maxHp
+                        }
+                        battleMessage.innerHTML = 'HP has been restored!'
+                    } else {
+                        character.stats.mp += restoreValue
+                        if (character.stats.mp > character.stats.maxMp) {
+                            character.stats.mp = character.stats.maxMp
+                        }
+                        battleMessage.innerHTML = 'MP has been restored!'
+                    }
+                    battleMessage.style.display = 'flex'
+                    setTimeout(itemUseEndTurn, 1500)
+                } else {
+                    battleMessage.innerHTML = (hoverToggler.index < 2) ? 'HP already at max!' : 'MP already at max!'
+                    clearItemNoUseMessage()
+                }
+            } else {
+                battleMessage.innerHTML = 'You do not have any of these!'
+                clearItemNoUseMessage()
+            }
+        
+            hoverSelectToggle(battleItemMenu, hoverToggler, index, 'zero', 'potion battleItemMenuItem')
+            battleItemMenuOpen = false
+        }
+
+        if (keyActive === 'escape') {
+            keyActive = ''
+            // cancelSFX.play()
+            battleMenu.style.display = 'flex'
+            battleItemMenu.style.display = 'none'
+            battleItemMenuOpen = false
+            hoverSelectToggle(battleItemMenu, hoverToggler, index, 'zero', 'potion battleItemMenuItem')
+        }
+        
+    }
     
     if (!magicMenuOpen && !battleItemMenuOpen) {
         if (keyActive === 'enter' && !attacking) {
@@ -520,17 +513,17 @@ function startBattle() {
                 playerAttack()
             }
             else if (hoverToggler.index === 1) {
-                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
                 magicMenuOpen = true
 				checkMagicReq()
             }
             else if (hoverToggler.index === 2) {
-                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
+                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
                 battleItemMenuOpen = true
             }
             else if (hoverToggler.index === 3) {
                 if (Math.random() > 0.10) {
-                    hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
+                    hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
                     characterTurn = false
                     enemyTurn = false
                     inDialog = false
@@ -550,7 +543,7 @@ function startBattle() {
                     battleMessage.style.display = 'flex'
                     attacking = true
                     setTimeout(() => {
-                        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
+                        hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
                         battleMessage.style.display = 'none'
                         attacking = false
                         characterTurn = false
@@ -560,264 +553,9 @@ function startBattle() {
                 }
             }
             setTimeout(() => {
-				hoverSelectToggle(battleMenu, hoverToggler, index, 'zero')
+				hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
 			}, 60)
         }
     }
-
-	if (basicAttack.moving) {
-		basicAttack.draw()
-	}
-	if (basicEnemyAttack.moving) {
-		basicEnemyAttack.draw()
-	}
-
-    //opens item menu in battle
-    if (battleItemMenuOpen) {
-
-        const menuElements = {
-            battleMenu: document.querySelector('#battleMenu'),
-            itemMenu: document.querySelector('#battleItemMenu'),
-            magicMenu: document.querySelector('#magicMenu'),
-            potions: document.querySelectorAll('.potion')
-        }
-        
-        menuElements.battleMenu.style.display = 'none'
-        menuElements.itemMenu.style.display = 'flex'
-        menuElements.magicMenu.style.display = 'none'
-        
-        menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px white'
-        
-        const potionTypes = ['potion', 'bigPotion', 'magicPotion', 'bigMagicPotion']
-        let i = 0
-        
-        menuElements.potions.forEach((item, index) => {
-            item.innerHTML = `${potionTypes[index].charAt(0).toUpperCase() + potionTypes[index].slice(1)}<br>${character.items.potions[potionTypes[index]].quantity}`
-            if (character.items.potions[potionTypes[index]].quantity === 0) {
-                item.style.opacity = 0.5
-            }
-        })
-        
-        if (!keyCheck && (keyActive === 'd' || keyActive === 'a')) {
-            keyActive = ''
-            const direction = keyActive === 'd' ? 1 : -1
-            if (battleItemIndex + direction >= 0 && battleItemIndex + direction <= 3) {
-                // blip()
-                menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px transparent'
-                battleItemIndex += direction
-                menuElements.itemMenu.children[battleItemIndex].style.border = 'solid 5px white'
-            }
-        }
-
-        // if (keyActive === 'enter') {
-        //     keyActive = ''
-        //     keyCheck = true
-		// 	select()
-        //     if (battleItemIndex == 0) {
-        //         if (character.items.potions.potion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
-        //             character.items.potions.potion.quantity--
-        //             character.stats.hp += character.items.potions.potion.restore
-        //             if (character.stats.hp > character.stats.maxHp) {
-        //                 character.stats.hp = character.stats.maxHp
-        //             }
-        //             battleMessage.innerHTML = 'HP has been restored!'
-        //             battleMessage.style.display = 'flex'
-        //             setTimeout(() => {
-        //                 itemUseEndTurn()
-        //             }, 1500)
-        //         } else {
-        //             if (character.items.potions.potion.quantity == 0) {
-        //                 battleMessage.innerHTML = 'You do not have any of these!'
-        //             } else if (character.stats.hp == character.stats.maxHp) {
-        //                 battleMessage.innerHTML = 'HP already at max!'
-        //             }
-        //             clearItemNoUseMessage()
-        //         }
-        //     } else if (battleItemIndex == 1) {
-        //         if (character.items.potions.bigPotion.quantity > 0 && character.stats.hp < character.stats.maxHp) {
-        //             character.items.potions.bigPotion.quantity--
-        //             character.stats.hp += character.items.potions.bigPotion.restore
-        //             if (character.stats.hp > character.stats.maxHp) {
-        //                 character.stats.hp = character.stats.maxHp
-        //             }
-        //             battleMessage.innerHTML = 'HP has been restored!'
-        //             battleMessage.style.display = 'flex'
-        //             setTimeout(() => {
-        //                 itemUseEndTurn()
-        //             }, 1500)
-        //         } else {
-        //             if (character.items.potions.bigPotion.quantity == 0) {
-        //                 battleMessage.innerHTML = 'You do not have any of these!'
-        //             } else if (character.stats.hp == character.stats.maxHp) {
-        //                 battleMessage.innerHTML = 'HP already at max!'
-        //             }
-        //             clearItemNoUseMessage()
-        //         }
-        //     } else if (battleItemIndex == 2) {
-        //         if (character.items.potions.magicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
-        //             character.items.potions.magicPotion.quantity--
-        //             character.stats.mp += character.items.potions.magicPotion.restore
-        //             if (character.stats.mp > character.stats.maxMp) {
-        //                 character.stats.mp = character.stats.maxMp
-        //             }
-        //             battleMessage.innerHTML = 'MP has been restored!'
-        //             battleMessage.style.display = 'flex'
-        //             setTimeout(() => {
-        //                 itemUseEndTurn()
-        //             }, 1500)
-        //         } else {
-        //             if (character.items.potions.magicPotion.quantity == 0) {
-        //                 battleMessage.innerHTML = 'You do not have any of these!'
-        //             } else if (character.stats.mp == character.stats.maxMp) {
-        //                 battleMessage.innerHTML = 'MP already at max!'
-        //             }
-        //             clearItemNoUseMessage()
-        //         }
-        //     } else if (battleItemIndex == 3) {
-        //         if (character.items.potions.bigMagicPotion.quantity > 0 && character.stats.mp < character.stats.maxMp) {
-        //             character.items.potions.bigMagicPotion.quantity--
-        //             character.stats.mp += character.items.potions.bigMagicPotion.restore
-        //             if (character.stats.mp > character.stats.maxMp) {
-        //                 character.stats.mp = character.stats.maxMp
-        //             }
-        //             battleMessage.innerHTML = 'MP has been restored!'
-        //             battleMessage.style.display = 'flex'
-        //             setTimeout(() => {
-        //                 itemUseEndTurn()
-        //             }, 1500)
-        //         } else {
-        //             if (character.items.potions.bigMagicPotion.quantity == 0) {
-        //                 battleMessage.innerHTML = 'You do not have any of these!'
-        //             } else if (character.stats.mp == character.stats.maxMp) {
-        //                 battleMessage.innerHTML = 'MP already at max!'
-        //             }
-        //             clearItemNoUseMessage()
-        //         }
-        //     }
-        //     document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-        //     battleItemMenuOpen = false
-        //     battleItemIndex = 0
-        //     document.querySelector('#battle-item-menu').style.display = 'none'
-        // }
-
-        if (keyActive === 'enter') {
-            keyActive = ''
-            // select()
-        
-            const itemTypes = ['potion', 'bigPotion', 'magicPotion', 'bigMagicPotion']
-            const itemIndex = battleItemIndex
-            const item = character.items.potions[itemTypes[itemIndex]]
-        
-            if (item.quantity > 0) {
-                if ((itemIndex < 2 && character.stats.hp < character.stats.maxHp) ||
-                    (itemIndex >= 2 && character.stats.mp < character.stats.maxMp)) {
-                    item.quantity--
-                    const restoreValue = item.restore
-                    if (itemIndex < 2) {
-                        character.stats.hp += restoreValue
-                        if (character.stats.hp > character.stats.maxHp) {
-                            character.stats.hp = character.stats.maxHp
-                        }
-                        battleMessage.innerHTML = 'HP has been restored!'
-                    } else {
-                        character.stats.mp += restoreValue
-                        if (character.stats.mp > character.stats.maxMp) {
-                            character.stats.mp = character.stats.maxMp
-                        }
-                        battleMessage.innerHTML = 'MP has been restored!'
-                    }
-                    battleMessage.style.display = 'flex'
-                    setTimeout(itemUseEndTurn, 1500)
-                } else {
-                    battleMessage.innerHTML = (itemIndex < 2) ? 'HP already at max!' : 'MP already at max!'
-                    clearItemNoUseMessage()
-                }
-            } else {
-                battleMessage.innerHTML = 'You do not have any of these!'
-                clearItemNoUseMessage()
-            }
-        
-            document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-            battleItemMenuOpen = false
-            battleItemIndex = 0
-            document.querySelector('#battle-item-menu').style.display = 'none'
-        }
-        
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'Escape' && battleItemMenuOpen) {
-				// cancelSFX.play()
-                battleItemMenuOpen = false
-                document.querySelector('#battle-item-menu').children[battleItemIndex].style.border = 'solid 5px transparent'
-                battleItemIndex = 0
-            }
-        })
-    } else {
-        document.querySelector('#battleItemMenu').style.display = 'none'
-    }
-
-    if (keyActive === 'escape') {
-        keyActive = ''
-        if (magicMenuOpen || battleItemMenuOpen) {
-            // cancelSFX.play()
-            document.querySelector('#battleMenu').style.display = 'flex'
-            document.querySelector('#battle-item-menu').style.display = 'none'
-            document.querySelector('#magicMenu').style.display = 'none'
-            document.querySelector('#magic-req').innerHTML = ''
-            hoverSelectToggle(magicMenu, hoverToggler, index, 'zero')
-            magicMenuOpen = false
-            battleItemMenuOpen = false
-        }
-    }
-
+  
 }
-
-function winScreen() {
-    const winScreenElement = document.querySelector('#win-screen')
-    const levelUpModalElement = document.querySelector('#level-up-modal')
-    const winGainsElement = document.querySelector('#win-gains')
-    let winScreenAnimationId = window.requestAnimationFrame(winScreen)
-
-    winScreenElement.style.display = "flex"
-    levelUpModalElement.style.display = (winScreenState === 'levelup') ? 'flex' : 'none'
-    winGainsElement.style.display = (winScreenState === 'rewards') ? 'flex' : 'none'
-
-    document.querySelector('#exp-gain').innerHTML = 'EXP Gained: ' + enemy.exp
-    document.querySelector('#money-gain').innerHTML = 'Money Gained: ' + enemy.money
-
-    if (keyActive === 'enter') {
-        keyActive = ''
-        if (!levelChecked) {
-            winScreenState = 'levelup'
-            checkLevelUp()
-        } else {
-            winScreenCleanup(winScreenAnimationId)
-        }
-    }
-}
-
-function winScreenCleanup(animationId) {
-    document.querySelector('#level-up-modal').style.display = 'none'
-    document.querySelector('#win-gains').style.display = "none"
-    document.querySelector('#win-screen').style.display = "none"
-    battle.initiated = false
-    inDialog = false
-    window.cancelAnimationFrame(animationId)
-    animate()
-}
-
-function loseScreen() {
-
-    // gamepadCheck()
-
-    loseScreenAnimationId = window.requestAnimationFrame(loseScreen)
-    document.querySelector('#lose-screen').style.display = "flex"
-    if (keyActive === 'enter') {
-        keyActive = ''
-        document.querySelector('#lose-screen').style.display = "none"
-        window.cancelAnimationFrame(loseScreenAnimationId)
-		battle.initiated = false
-        inDialog = false
-        animate()
-    }   
-}
-
