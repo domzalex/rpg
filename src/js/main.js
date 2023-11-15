@@ -142,7 +142,7 @@ function animate() {
                     battlePlayer.image = playerIdleLeft
                     document.querySelector('#battle-transition').style.left = '0px'
                     setTimeout(() => {
-                        document.querySelector('#battle-transition').style.left = '-1280px'
+                        document.querySelector('#battle-transition').style.left = '-1300px'
                         setTimeout(() => {
                             document.querySelector('#battle-transition').style.opacity = '0'
                         }, 1500)
