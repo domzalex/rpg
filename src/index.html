@@ -85,31 +85,33 @@
 			width: 21%;
 			height: 130px;
 			color: white;
+			border: solid 5px transparent;
 			display: flex;
 			text-align: center;
 			justify-content: center;
 			align-items: center;
 			margin: 0 6.5px;
 			font-size: 1.5em;
-			opacity: 0.65;
 			box-shadow: 0px 10px 10px rgba(0,0,0,0.95);
 			transition: 0.3s ease;
 		}
 		.hovered {
 			transform: scale(1);
-			opacity: 1;
+			border: solid 5px white;
 			box-shadow: 0px 15px 30px rgba(0,0,0,0.85);
 		}
-		#enemy-health::after {
+		/* #enemy-health::after {
 			display: inline-block;
 			content: '';
-			width: 80px;
-			height: 25px;
+			width: 25px;
+			height: 80px;
 			border: solid 5px white;
+			background-color: black;
 			position: absolute;
 			top: -5px;
 			left: -5px;
-		}
+			z-index: 0;
+		} */
 		#battle-dialog, #npc-dialog {
 			display: flex;
 			justify-content: center;
@@ -239,7 +241,9 @@
 			</div>
 	
 	
-			<div id="enemy-health" style="height: 15px; transition: 0.5s ease; background-color: #FF77A8; position: absolute; top: -160px; left: 361px;"></div>
+			<div id="enemy-health" style="position: absolute; width: 15px; transition: 0.5s ease; background-color: rgb(0, 255, 0); bottom: 351px; left: 323px; transform: rotate(180deg); z-index: 1;"></div>
+			<div id="enemy-health-behind" style="position: absolute; width: 25px; height: 80px; background-color: rgb(0, 0, 0); bottom: 346px; left: 318px; z-index: 0; border: solid 5px white;"></div>
+			
 	
 			
 		</div>

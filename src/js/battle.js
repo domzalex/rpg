@@ -6,9 +6,10 @@ function delay(ms) {
 //no changes with this function since it works fine and seems straightfoward as is.
 //may need to be refactored once enemies get more complex
 function chooseEnemy() {
-    const chosenEnemy = enemies[Math.floor(Math.random() * Object.keys(enemies).length)]
-    // const chosenEnemy = enemies[2]
-    enemyImg.src = chosenEnemy.img
+    // const chosenEnemy = enemies[Math.floor(Math.random() * Object.keys(enemies).length)]
+    let chosenEnemy = enemies[2]
+    enemyImg.src = chosenEnemy.img.idle
+    enemy.img = chosenEnemy.img
     enemy.name = chosenEnemy.name
     enemy.maxHp = chosenEnemy.hp
     enemy.health = chosenEnemy.hp
@@ -19,8 +20,11 @@ function chooseEnemy() {
     enemy.money = Math.floor(Math.random() * (30 - 4 + 1) + 4)
     enemy.weakness = chosenEnemy.weakness
     enemy.drop = chosenEnemy.drop
+    enemy.framesIdle = chosenEnemy.frames.idle
+    enemy.framesFlee = chosenEnemy.frames.flee
+    enemy.frames.max = enemy.framesIdle
 
-    document.querySelector('#enemy-health').style.width = ((enemy.health / enemy.maxHp) * 70) + 'px'
+    document.querySelector('#enemy-health').style.height = ((enemy.health / enemy.maxHp) * 70) + 'px'
 }
 
 //tried an async function. is it better? idk
@@ -131,24 +135,38 @@ async function playerAttack(magicType) {
 
     await delay(700)
     battleMessage.style.display = 'flex'
-    document.querySelector('#enemy-health').style.width = (enemy.health <= 0) ? '0px' : `${(enemy.health / enemy.maxHp) * 70}px`
+    document.querySelector('#enemy-health').style.height = (enemy.health <= 0) ? '0px' : `${(enemy.health / enemy.maxHp) * 70}px`
     resetAttackAnimation(basicAttack)
 
     superEffectiveText = ''
 
+    await delay(700)
+    if (enemy.health <= 0) {
+        document.querySelector('#enemy-health').style.display = 'none'
+        document.querySelector('#enemy-health-behind').style.display = 'none'
+        fleeing = 'enemyTrue'
+        enemyImg.src = enemy.img.flee
+        enemy.frames.max = enemy.framesFlee
+    }
+
     await delay(2000)
     battleMessage.style.display = 'none'
     if (enemy.health <= 0) {
+        enemy.position.x = 355
         battleWon = true
         endBattle()
         fleeing = ''
-        enemy.position.x = 355
     } else {
         attacking = false
         characterTurn = false
         enemyTurn = true
         enemyAttack()
     }
+}
+
+function checkEnemyHealth() {
+    let hp = document.querySelector('#enemy-health')
+    hp.style.backgroundColor = `rgb(${255 - ((parseInt(hp.style.height.slice(0,2)) / 70) * 255)},${(parseInt(hp.style.height.slice(0,2)) / 70) * 255},0)`
 }
 
 function enemyAttack() {
@@ -318,6 +336,8 @@ function startBattle() {
 
     battleAnimationId = window.requestAnimationFrame(startBattle)
 
+    battleMenuPane.style.display = 'flex'
+
     document.querySelector('#player-battle-health').innerHTML = `HP: ${character.stats.hp}`
     document.querySelector('#player-battle-magic').innerHTML = `MP: ${character.stats.mp}`
 
@@ -325,6 +345,8 @@ function startBattle() {
         chooseEnemy()
         enemyChosen = true
     }
+
+    checkEnemyHealth()
 
     //handles speed check at start of battle. whoever has a higher stat will attack first
     if (!speedCheck) {
@@ -335,7 +357,6 @@ function startBattle() {
             enemyTurn = true
             setTimeout(() => {
                 enemyAttack()
-                battleMenuPane.style.display = 'flex'
             }, 1500)
         }
     }
@@ -354,7 +375,7 @@ function startBattle() {
     (fleeing === 'playerTrue') ? (battlePlayer.position.x += 8) : (fleeing === 'enemyTrue' && (enemy.position.x -= 8))
 
     //handles selection/hover states for the main battle menu
-    if (!magicMenuOpen && !battleItemMenuOpen && !attacking) {	
+    if (!magicMenuOpen && !battleItemMenuOpen && !attacking && characterTurn) {	
         if (!attacking) {
             if (keyActive === 'd' && hoverToggler.index < 3) {
                 // blip()
@@ -374,7 +395,9 @@ function startBattle() {
                     case 1 :
                         document.querySelector('#battleMenu-transition').style.bottom = '0px'
                         setTimeout(() => {
-                            hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            setTimeout(() => {
+                                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            }, 100)
                             magicMenuOpen = true
                             document.querySelector('#battleMenu-transition').style.bottom = '-200px'
                         }, 300)
@@ -382,14 +405,18 @@ function startBattle() {
                     case 2 :
                         document.querySelector('#battleMenu-transition').style.bottom = '0px'
                         setTimeout(() => {
-                            hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            setTimeout(() => {
+                                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            }, 100)
                             battleItemMenuOpen = true
                             document.querySelector('#battleMenu-transition').style.bottom = '-200px'
                         }, 300)
                         break
                     case 3 :
                         if (Math.random() > 0.10) {
-                            hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            setTimeout(() => {
+                                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                            }, 100)
                             characterTurn = false
                             enemyTurn = false
                             inDialog = false
@@ -409,7 +436,9 @@ function startBattle() {
                             battleMessage.style.display = 'flex'
                             attacking = true
                             setTimeout(() => {
-                                hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                                setTimeout(() => {
+                                    hoverSelectToggle(battleMenu, hoverToggler, index, 'zero', 'battleMenuItem')
+                                }, 100)
                                 battleMessage.style.display = 'none'
                                 attacking = false
                                 characterTurn = false
@@ -475,7 +504,9 @@ function startBattle() {
                 magicMenu.style.display = 'none'
                 document.querySelector('#magic-req').innerHTML = ''
                 magicMenuOpen = false
-                hoverSelectToggle(magicMenu, hoverToggler, index, 'zero', 'magicMenuItem')
+                setTimeout(() => {
+                    hoverSelectToggle(magicMenu, hoverToggler, index, 'zero', 'potion battleItemMenuItem')
+                }, 100)
                 document.querySelector('#battleMenu-transition').style.bottom = '-200px'
             }, 300)
         }
@@ -560,7 +591,9 @@ function startBattle() {
                 battleMenu.style.display = 'flex'
                 battleItemMenu.style.display = 'none'
                 battleItemMenuOpen = false
-                hoverSelectToggle(battleItemMenu, hoverToggler, index, 'zero', 'potion battleItemMenuItem')
+                setTimeout(() => {
+                    hoverSelectToggle(battleItemMenu, hoverToggler, index, 'zero', 'potion battleItemMenuItem')
+                }, 100)
                 document.querySelector('#battleMenu-transition').style.bottom = '-200px'
             }, 300)
         }  

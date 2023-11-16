@@ -85,7 +85,7 @@ let character = {
     }
 
 }
-const enemies = {
+let enemies = {
     0: {
         name: 'Neutral Slime',
         img: 'img/enemy-wind-weak-2.png',
@@ -112,15 +112,22 @@ const enemies = {
     },
     2: {
         name: 'Grass Slime',
-        img: 'img/enemy-fire-weak-2.png',
-        hp: 20,
+        img: {
+            idle: 'img/skeleton-enemy-idle.png',
+            flee: 'img/skeleton-enemy-flee-2.png',
+        },
+        hp: 2,
         atk: 25,
         def: 15,
         spd: 20,
         exp: 50,
         money: 15,
         weakness: 'fire',
-        drop: 'magicPotion'
+        drop: 'magicPotion',
+        frames: {
+            idle: 11,
+            flee: 7
+        }
     }
 }
 
@@ -245,7 +252,7 @@ backgroundImage.src = currentMap.bg
 let foregroundImage = new Image()
 foregroundImage.src = './img/mapNEWdemoTOP.png'
 const battleBg = new Image()
-battleBg.src = './img/battle-bg-pastel.png'
+battleBg.src = './img/battle-bg-NEW.png'
 const enemyImg = new Image()
 const basicAttackImg = new Image()
 basicAttackImg.src = './img/basic-attack.png'
@@ -334,12 +341,12 @@ const basicEnemyAttack = new Sprite({
 })
 let enemy = new Sprite({
     position: {
-        x: 355,
-        y: 270
+        x: 353,
+        y: 218
     },
     image: enemyImg,
     frames: {
-        max: 8
+        max: 11
     },
     name: '',
     maxHp: 20,
@@ -418,7 +425,7 @@ function tallGrass() {
 
 // BATTLE CODE VARIABLES //
 
-const hpBarWidth = 70
+const hpBarHeight = 70
 const battleItemMenu = document.querySelector('#battleItemMenu');
 const magicReq = document.querySelector('#magic-req');
 let fleeing
