@@ -113,20 +113,22 @@ let enemies = {
     2: {
         name: 'Grass Slime',
         img: {
-            idle: 'img/skeleton-enemy-idle.png',
-            flee: 'img/skeleton-enemy-flee-2.png',
+            idle: 'img/goblin-enemy-idle.png',
+            attack: 'img/goblin-enemy-attack.png',
+            flee: 'img/goblin-enemy-flee.png',
         },
-        hp: 2,
+        hp: 20,
         atk: 25,
         def: 15,
-        spd: 20,
+        spd: 8,
         exp: 50,
         money: 15,
         weakness: 'fire',
         drop: 'magicPotion',
         frames: {
-            idle: 11,
-            flee: 7
+            idle: 8,
+            attack: 9,
+            flee: 8
         }
     }
 }
@@ -252,12 +254,11 @@ backgroundImage.src = currentMap.bg
 let foregroundImage = new Image()
 foregroundImage.src = './img/mapNEWdemoTOP.png'
 const battleBg = new Image()
-battleBg.src = './img/battle-bg-NEW.png'
+battleBg.src = './img/battle-bg-NEW-2.png'
 const enemyImg = new Image()
 const basicAttackImg = new Image()
 basicAttackImg.src = './img/basic-attack.png'
 const basicEnemyAttackImg = new Image()
-basicEnemyAttackImg.src = './img/basic-enemy-attack.png'
 const merchantIconImg = new Image()
 merchantIconImg.src = './img/merchantIcon.png'
 
@@ -331,8 +332,8 @@ const basicAttack = new Sprite({
 })
 const basicEnemyAttack = new Sprite({
 	position: {
-		x: 850,
-		y: 270
+		x: 350,
+		y: 190
 	},
 	image: basicEnemyAttackImg,
 	frames: {
@@ -341,8 +342,8 @@ const basicEnemyAttack = new Sprite({
 })
 let enemy = new Sprite({
     position: {
-        x: 353,
-        y: 218
+        x: 350,
+        y: 190
     },
     image: enemyImg,
     frames: {

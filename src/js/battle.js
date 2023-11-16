@@ -21,6 +21,8 @@ function chooseEnemy() {
     enemy.weakness = chosenEnemy.weakness
     enemy.drop = chosenEnemy.drop
     enemy.framesIdle = chosenEnemy.frames.idle
+    enemy.framesAttack = chosenEnemy.frames.attack
+    basicEnemyAttackImg.src = chosenEnemy.img.attack
     enemy.framesFlee = chosenEnemy.frames.flee
     enemy.frames.max = enemy.framesIdle
 
@@ -49,13 +51,16 @@ function clearItemNoUseMessage() {
 }
 
 //changed to use ternary operators
-function attackAnimation() {
-    characterTurn ? (basicAttack.moving = true) : (basicEnemyAttack.moving = true)
+function attackAnimation(entity, x, y) {
+    characterTurn ? (basicAttack.moving = true) : (enemyImg.src = enemy.img.attack, enemy.position.x = x, enemy.position.y = y, entity.frames.val = 0, enemy.frames.max = enemy.framesAttack)
 }
 
 //changed to use as argument passed to tell whether it's the chracter or the enemy that attacked
-function resetAttackAnimation(entity) {
-    entity.moving = false
+function resetAttackAnimation(entity, source, x, y) {
+    entity.frames.max = entity.framesIdle
+    entity.image.src = source
+    entity.position.x = x
+    entity.position.y = y
     entity.frames.val = 0
 }
 
@@ -149,7 +154,7 @@ async function playerAttack(magicType) {
         enemy.frames.max = enemy.framesFlee
     }
 
-    await delay(2000)
+    await delay(1500)
     battleMessage.style.display = 'none'
     if (enemy.health <= 0) {
         enemy.position.x = 355
@@ -178,7 +183,7 @@ function enemyAttack() {
     calcDamage = Math.round(baseDamage + Math.random() * (baseDamage - 1) + 1)
     finalDamage = Math.round(calcDamage * character.equipment.armor.defense)
     setTimeout(() => {
-        attackAnimation()
+        attackAnimation(enemy, 230, 140)
 
         setTimeout(() => {
             moveEnemy(battlePlayer)
@@ -200,8 +205,8 @@ function enemyAttack() {
 
         setTimeout(() => {
             battleMessage.style.display = 'flex'
-            resetAttackAnimation(basicEnemyAttack)
-        }, 1000)
+            resetAttackAnimation(enemy, enemy.img.idle, 350, 190)
+        }, 1500)
 
         setTimeout(() => {
             battleMessage.style.display = 'none'
@@ -221,6 +226,9 @@ function enemyAttack() {
 //also included ternary operator again, and attempted to streamline the conditionals
 function endBattle() {
     attacking = enemyChosen = speedCheck = battleEnd = characterTurn = battle.initiated = false;
+
+    document.querySelector('#enemy-health').style.display = 'inline-block'
+    document.querySelector('#enemy-health-behind').style.display = 'inline-block'
 
     if (battleWon) {
         battleWon = false
@@ -372,7 +380,7 @@ function startBattle() {
     }
 
     //one-liner for handling the enemy/player fleeing animations
-    (fleeing === 'playerTrue') ? (battlePlayer.position.x += 8) : (fleeing === 'enemyTrue' && (enemy.position.x -= 8))
+    (fleeing === 'playerTrue') ? (battlePlayer.position.x += 8) : (fleeing === 'enemyTrue' && (enemy.position.x -= 10))
 
     //handles selection/hover states for the main battle menu
     if (!magicMenuOpen && !battleItemMenuOpen && !attacking && characterTurn) {	
