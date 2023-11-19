@@ -11,7 +11,7 @@ let gameState = {
 }
 let currentMap = {
     // bg: './img/map-pastel.png'
-    bg: './img/mapNEWdemo.png'
+    bg: './img/mapNEWdemo_2.png'
 }
 let character = {
     position: {

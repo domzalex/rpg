@@ -42,7 +42,7 @@ function animate() {
     //draws the character and all of the onscreen graphical elements from 'bottom' to 'top'
     background.draw()
 	player.draw()
-    foreground.draw()
+    // foreground.draw()
 
     //sets player moving variable to handle if player is moving or not
     player.moving = true
@@ -106,51 +106,51 @@ function animate() {
             }
 
             //battle zone collision check and battle init
-            for (const battleZone of battleZones) {
-                const overlappingArea = (
-                    (Math.min(
-                        player.position.x + player.width,
-                        battleZone.position.x + battleZone.width
-                    ) -
-                    Math.max(
-                        player.position.x,
-                        battleZone.position.x
-                    )) *
-                    (Math.min(
-                        player.position.y + player.height,
-                        battleZone.position.y + battleZone.height
-                    ) -
-                    Math.max(
-                        player.position.y,
-                        battleZone.position.y)
-                    ))
+            // for (const battleZone of battleZones) {
+            //     const overlappingArea = (
+            //         (Math.min(
+            //             player.position.x + player.width,
+            //             battleZone.position.x + battleZone.width
+            //         ) -
+            //         Math.max(
+            //             player.position.x,
+            //             battleZone.position.x
+            //         )) *
+            //         (Math.min(
+            //             player.position.y + player.height,
+            //             battleZone.position.y + battleZone.height
+            //         ) -
+            //         Math.max(
+            //             player.position.y,
+            //             battleZone.position.y)
+            //         ))
         
-                if (rectangleCollision({ rectangle1: player, rectangle2: battleZone })) {
-                    stepCounter++
-                }
+            //     if (rectangleCollision({ rectangle1: player, rectangle2: battleZone })) {
+            //         stepCounter++
+            //     }
         
-                if (
-                    rectangleCollision({ rectangle1: player, rectangle2: battleZone }) &&
-                    overlappingArea > (player.width * player.height) / 2 &&
-                    ((Math.random() < 0.02 && stepCounter >= 200) || (stepCounter >= 1000))
-                ) {
-                    stepCounter = 0
-                    battle.initiated = true
-                    inDialog = true
-                    keyActive = ''
-                    window.cancelAnimationFrame(animationId)
-                    battlePlayer.image = playerIdleLeft
-                    document.querySelector('#battle-transition').style.left = '0px'
-                    setTimeout(() => {
-                        document.querySelector('#battle-transition').style.left = '-1300px'
-                        setTimeout(() => {
-                            document.querySelector('#battle-transition').style.opacity = '0'
-                        }, 1500)
-                    }, 1000)
-                    setTimeout(startBattle, 1000)
-                    break
-                }
-            }
+            //     if (
+            //         rectangleCollision({ rectangle1: player, rectangle2: battleZone }) &&
+            //         overlappingArea > (player.width * player.height) / 2 &&
+            //         ((Math.random() < 0.02 && stepCounter >= 200) || (stepCounter >= 1000))
+            //     ) {
+            //         stepCounter = 0
+            //         battle.initiated = true
+            //         inDialog = true
+            //         keyActive = ''
+            //         window.cancelAnimationFrame(animationId)
+            //         battlePlayer.image = playerIdleLeft
+            //         document.querySelector('#battle-transition').style.left = '0px'
+            //         setTimeout(() => {
+            //             document.querySelector('#battle-transition').style.left = '-1300px'
+            //             setTimeout(() => {
+            //                 document.querySelector('#battle-transition').style.opacity = '0'
+            //             }, 1500)
+            //         }, 1000)
+            //         setTimeout(startBattle, 1000)
+            //         break
+            //     }
+            // }
 
         } 
     }
