@@ -26,7 +26,7 @@ function createBoundaries() {
     boundaries = []
     collisionsMap.forEach((row, i) => {
         row.forEach(((symbol, j) => {
-            if (symbol === 7544) { //original value 41
+            if (symbol === 2684357776 || symbol === 3216) { //original value 41
                 boundaries.push(new Boundary({position: {
                     x: j * Boundary.width + (offset.x + 20),
                     y: i * Boundary.height + (offset.y)

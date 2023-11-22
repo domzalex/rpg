@@ -42,7 +42,7 @@ function animate() {
     //draws the character and all of the onscreen graphical elements from 'bottom' to 'top'
     background.draw()
 	player.draw()
-    // foreground.draw()
+    foreground.draw()
 
     //sets player moving variable to handle if player is moving or not
     player.moving = true
@@ -57,7 +57,6 @@ function animate() {
         };
         player.image = player.idleSprites[idleSprites[player.facing]]
     }
-    
 
 	// for (let i = 0; i < npcList.length; i++) {
 	// 	const npc = npcList[i]
@@ -85,10 +84,11 @@ function animate() {
 
             for (const movable of [...npcList, ...boundaries]) {
                 const newPosition = {
-                    x: movable.position.x + move.position.x,
-                    y: movable.position.y + move.position.y
+                    x: movable.position.x + (move.position.x * 2),
+                    y: movable.position.y + (move.position.y * 2)
                 };
                 if (rectangleCollision({rectangle1: player, rectangle2: { ...movable, position: newPosition }})) {
+                    console.log('colliding')
                     moving = false
                     break
                 }

@@ -139,8 +139,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -2350,
-    y: -1330
+    x: -2050,
+    y: -1030
 }
 // -1500, -6200, -3800
 canvas.width = 1280
@@ -252,7 +252,7 @@ const npcDialogHitboxes = []
 let backgroundImage = new Image()
 backgroundImage.src = currentMap.bg
 let foregroundImage = new Image()
-foregroundImage.src = './img/mapNEWdemoTOP.png'
+foregroundImage.src = './img/newDEMO_TOP.png'
 const battleBg = new Image()
 battleBg.src = './img/battle-bg-NEW-2.png'
 const enemyImg = new Image()
