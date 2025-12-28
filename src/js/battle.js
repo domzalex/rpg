@@ -141,7 +141,7 @@ async function playerAttack(magicType) {
     await delay(700)
     battleMessage.style.display = 'flex'
     document.querySelector('#enemy-health').style.height = (enemy.health <= 0) ? '0px' : `${(enemy.health / enemy.maxHp) * 70}px`
-    resetAttackAnimation(basicAttack)
+    resetAttackAnimation(basicAttack, basicAttackImg.src, basicAttack.position.x, basicAttack.position.y)
 
     superEffectiveText = ''
 
@@ -206,7 +206,7 @@ function enemyAttack() {
         setTimeout(() => {
             battleMessage.style.display = 'flex'
             resetAttackAnimation(enemy, enemy.img.idle, 350, 190)
-        }, 1500)
+        }, 1400)
 
         setTimeout(() => {
             battleMessage.style.display = 'none'

@@ -22,7 +22,7 @@ let character = {
     stats: {
         lvl: 5,
         maxHp: 30,
-        hp: 20,
+        hp: 30,
         maxMp: 20,
         mp: 20,
         exp: 100,
@@ -139,8 +139,8 @@ const ctx = canvas.getContext('2d')
 
 // Sets main screen offset for movable background to reference as well as game screen size
 let offset = {
-    x: -2050,
-    y: -1030
+    x: -3165,
+    y: -1080
 }
 // -1500, -6200, -3800
 canvas.width = 1280
@@ -260,7 +260,7 @@ const basicAttackImg = new Image()
 basicAttackImg.src = './img/basic-attack.png'
 const basicEnemyAttackImg = new Image()
 const merchantIconImg = new Image()
-merchantIconImg.src = './img/merchantIcon.png'
+merchantIconImg.src = './img/itemIcon.png'
 
 // Player sprite images
 const playerDown = new Image()
@@ -284,7 +284,7 @@ playerIdleRight.src = './img/player-right-idle.png'
 // const playerBattle = new Image()
 // playerBattle.src = './img/player-battle.png'
 const merchantImage = new Image()
-merchantImage.src = './img/merchant.png'
+merchantImage.src = './img/itemIcon.png'
 
 // Sprite list
 let player = new Sprite({

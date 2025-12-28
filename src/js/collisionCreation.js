@@ -136,7 +136,7 @@ function checkCollisionChange() {
 }
 battleZonesMap.forEach((row, i) => {
     row.forEach(((symbol, j) => {
-        if (symbol === 7544) { // original value 51
+        if (symbol === 3218) { // original value 51
             battleZones.push(new BattleZone({position: {
                 x: j * BattleZone.width + offset.x,
                 y: i * BattleZone.height + offset.y
